@@ -1,6 +1,7 @@
 """Reusable modal form dialog built from a list of field definitions.
 
-Views describe *what* to ask (:class:`FormField` list) and *what to do* with the
+Views describe *what* to ask (a list of
+:class:`~ui.components.form_fields.FormField`) and *what to do* with the
 answers (an ``on_submit`` callback). This component handles layout, required
 markers, inline error display and keyboard shortcuts, so no view repeats form
 widget code.
@@ -12,44 +13,18 @@ Author: Siddhi Baluja (240302054)
 from __future__ import annotations
 
 from collections.abc import Callable, Mapping, Sequence
-from dataclasses import dataclass
 from typing import Any
 
 import customtkinter as ctk
 
+from ui.components.form_fields import COMBO, ENTRY, TEXT, FormField, make_input, read_input
 from ui.components.window_utils import center_on_parent
 from ui.theme import Theme
 
-# Field kinds supported by the dialog.
-ENTRY = "entry"
-COMBO = "combo"      # drop-down that only allows listed values
-TEXT = "text"        # multi-line text
+__all__ = ["COMBO", "ENTRY", "TEXT", "FormDialog", "FormField", "SubmitHandler"]
 
 #: ``on_submit(values)`` returns ``None`` on success or an error message to show.
 SubmitHandler = Callable[[dict[str, str]], str | None]
-
-
-@dataclass(frozen=True)
-class FormField:
-    """One input in a :class:`FormDialog`.
-
-    Attributes:
-        key: Key used in the values dictionary.
-        label: Text shown to the left of the input.
-        kind: ``entry``, ``combo`` or ``text``.
-        options: Choices for ``combo`` fields.
-        required: Show a required marker (validation itself happens in services).
-        placeholder: Hint shown in empty entries.
-        hint: Small help text under the input.
-    """
-
-    key: str
-    label: str
-    kind: str = ENTRY
-    options: Sequence[str] = ()
-    required: bool = False
-    placeholder: str = ""
-    hint: str = ""
 
 
 class FormDialog(ctk.CTkToplevel):
@@ -103,7 +78,7 @@ class FormDialog(ctk.CTkToplevel):
         label = f"{field.label}{' *' if field.required else ''}"
         ctk.CTkLabel(frame, text=label, font=self._theme.font()).grid(
             row=row, column=0, sticky="nw", padx=(0, 16), pady=6)
-        widget = self._make_input(frame, field, "" if value is None else str(value))
+        widget = make_input(frame, field, "" if value is None else str(value), self._theme)
         widget.grid(row=row, column=1, sticky="ew", pady=6)
         self._inputs[field.key] = widget
         if field.hint:
@@ -113,31 +88,12 @@ class FormDialog(ctk.CTkToplevel):
                 row=row, column=1, sticky="w", pady=(0, 4))
         return row + 1
 
-    def _make_input(self, frame: Any, field: FormField, value: str) -> Any:
-        """Create the widget for one field kind, pre-filled with ``value``."""
-        if field.kind == COMBO:
-            widget = ctk.CTkOptionMenu(frame, values=list(field.options) or [""], width=300,
-                                       dynamic_resizing=False, font=self._theme.font())
-            widget.set(value if value in field.options else (field.options[0]
-                                                             if field.options else ""))
-            return widget
-        if field.kind == TEXT:
-            widget = ctk.CTkTextbox(frame, width=300, height=80, font=self._theme.font())
-            widget.insert("1.0", value)
-            return widget
-        widget = ctk.CTkEntry(frame, width=300, placeholder_text=field.placeholder,
-                              font=self._theme.font())
-        if value:
-            widget.insert(0, value)
-        return widget
-
     def _build_buttons(self, frame: Any, row: int, submit_text: str) -> None:
         """Primary and cancel buttons."""
         buttons = ctk.CTkFrame(frame, fg_color="transparent")
         buttons.grid(row=row, column=0, columnspan=2, sticky="e", pady=(16, 0))
-        ctk.CTkButton(buttons, text="Cancel", width=100, fg_color="transparent",
-                      border_width=1, text_color=("gray10", "gray90"),
-                      command=self.destroy).pack(side="right")
+        ctk.CTkButton(buttons, text="Cancel", width=100, command=self.destroy,
+                      **self._theme.button_style("secondary")).pack(side="right")
         ctk.CTkButton(buttons, text=submit_text, width=120,
                       command=self._submit).pack(side="right", padx=(0, 8))
         self.bind("<Control-Return>", lambda _e: self._submit())
@@ -153,14 +109,12 @@ class FormDialog(ctk.CTkToplevel):
 
     # -- values ---------------------------------------------------------------------
     def values(self) -> dict[str, str]:
-        """Current text of every input, keyed by field key."""
-        result: dict[str, str] = {}
-        for key, widget in self._inputs.items():
-            if isinstance(widget, ctk.CTkTextbox):
-                result[key] = widget.get("1.0", "end").strip()
-            else:
-                result[key] = widget.get().strip()
-        return result
+        """Current text of every input.
+
+        Returns:
+            ``{field key: trimmed text}``.
+        """
+        return {key: read_input(widget) for key, widget in self._inputs.items()}
 
     def _submit(self) -> None:
         """Hand values to the owner; close on success, otherwise show the error."""

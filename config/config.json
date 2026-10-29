@@ -2,6 +2,7 @@
   "app": {
     "name": "Inventory Management System",
     "short_name": "IMS",
+    "tagline": "Inventory · TQM Q11",
     "version": "1.0.0",
     "author": "Siddhi Baluja",
     "roll_no": "240302054",

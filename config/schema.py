@@ -15,6 +15,7 @@ from core.constants import APPEARANCE_MODES, COLOR_THEMES, LOG_LEVELS
 SCHEMA: dict[str, type | tuple[type, ...]] = {
     "app.name": str,
     "app.short_name": str,
+    "app.tagline": str,
     "app.version": str,
     "app.author": str,
     "app.roll_no": str,

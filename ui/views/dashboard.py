@@ -133,10 +133,8 @@ class DashboardView(BaseView):
 
     def _open_low_stock(self) -> None:
         """Jump to Products with the low-stock filter on."""
+        self.app.view("products").show_low_stock()
         self.app.show("products")
-        products_view = self.app._views["products"]
-        products_view.show_low_stock()
-        products_view.refresh()
 
 
 def _draw_flows(ax: Axes, theme: Theme, frame: pd.DataFrame) -> None:

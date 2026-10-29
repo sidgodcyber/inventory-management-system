@@ -40,11 +40,11 @@ class ConfirmDialog(ctk.CTkToplevel):
                      font=theme.font()).pack(anchor="w", pady=(10, 18))
         buttons = ctk.CTkFrame(frame, fg_color="transparent")
         buttons.pack(fill="x")
-        ctk.CTkButton(buttons, text="Cancel", width=100, fg_color="transparent", border_width=1,
-                      text_color=("gray10", "gray90"), command=self.destroy).pack(side="right")
-        color = theme.color("danger") if danger else theme.color("accent")
-        ctk.CTkButton(buttons, text=confirm_text, width=120, fg_color=color,
-                      command=self._confirm).pack(side="right", padx=(0, 8))
+        ctk.CTkButton(buttons, text="Cancel", width=100, command=self.destroy,
+                      **theme.button_style("secondary")).pack(side="right")
+        ctk.CTkButton(buttons, text=confirm_text, width=120, command=self._confirm,
+                      **theme.button_style("danger" if danger else "primary")).pack(
+            side="right", padx=(0, 8))
         center_on_parent(self, master)
         self.bind("<Escape>", lambda _e: self.destroy())
         self.bind("<Return>", lambda _e: self._confirm())

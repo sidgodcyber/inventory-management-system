@@ -1,8 +1,11 @@
-"""Reusable data table: ttk.Treeview + scrollbar + clickable sort + pager.
+"""Reusable data table: ttk.Treeview + scrollbar + clickable sort + optional pager.
 
 CustomTkinter has no table widget, so this wraps ``ttk.Treeview`` (the
 documented Tkinter fallback) and styles it from the theme palette. Every list
 screen uses this one component instead of copy-pasting table code.
+
+Column definitions and row tags live in :mod:`ui.components.table_types` and
+are re-exported here for convenience.
 
 Layer: ui/components
 Author: Siddhi Baluja (240302054)
@@ -11,47 +14,30 @@ Author: Siddhi Baluja (240302054)
 from __future__ import annotations
 
 from collections.abc import Callable, Iterable, Sequence
-from dataclasses import dataclass
 from tkinter import ttk
 from typing import Any
 
 import customtkinter as ctk
 
 from models.common import Page
+from ui.components.pager import Pager
+from ui.components.table_types import (
+    TAG_ERROR,
+    TAG_INACTIVE,
+    TAG_LOW,
+    TAG_STOCKOUT,
+    TAG_SUCCESS,
+    TAG_WARNING,
+    Column,
+    Row,
+)
 from ui.theme import TABLE_STYLE, Theme
 
-# Row tags understood by every table, mapped to palette bases.
-TAG_LOW = "low"
-TAG_STOCKOUT = "stockout"
-TAG_INACTIVE = "inactive"
-TAG_ERROR = "error"
-TAG_WARNING = "warning"
-TAG_SUCCESS = "success"
-
-Row = tuple[str, Sequence[Any], tuple[str, ...]]  # (row id, values, tags)
-
-
-@dataclass(frozen=True)
-class Column:
-    """Definition of one table column.
-
-    Attributes:
-        key: Field key; also the sort key passed to services.
-        heading: Header text.
-        width: Initial width in pixels.
-        anchor: ``w`` (left), ``e`` (right) or ``center``.
-        sortable: Whether clicking the header sorts by this column.
-    """
-
-    key: str
-    heading: str
-    width: int = 120
-    anchor: str = "w"
-    sortable: bool = True
-
+__all__ = ["TAG_ERROR", "TAG_INACTIVE", "TAG_LOW", "TAG_STOCKOUT", "TAG_SUCCESS", "TAG_WARNING",
+           "Column", "DataTable", "Row"]
 
 class DataTable(ctk.CTkFrame):
-    """Sortable, paginated table.
+    """Sortable table with an optional pager.
 
     Args:
         master: Parent widget.
@@ -63,31 +49,24 @@ class DataTable(ctk.CTkFrame):
         height: Visible rows.
     """
 
-    def __init__(
-        self,
-        master: Any,
-        theme: Theme,
-        columns: Sequence[Column],
-        on_sort: Callable[[str, bool], None] | None = None,
-        on_page: Callable[[int], None] | None = None,
-        on_activate: Callable[[str], None] | None = None,
-        height: int = 15,
-    ) -> None:
+    def __init__(self, master: Any, theme: Theme, columns: Sequence[Column],
+                 on_sort: Callable[[str, bool], None] | None = None,
+                 on_page: Callable[[int], None] | None = None,
+                 on_activate: Callable[[str], None] | None = None, height: int = 15) -> None:
         super().__init__(master, fg_color="transparent")
         self._theme = theme
         self._columns = {c.key: c for c in columns}
         self._on_sort = on_sort
-        self._on_page = on_page
         self._on_activate = on_activate
         self._sort_key: str | None = None
         self._descending = False
-        self._page = 1
         self._build_tree(columns, height)
-        self._build_pager()
+        self._pager = Pager(self, theme, on_page) if on_page is not None else None
+        if self._pager is not None:
+            self._pager.pack(fill="x", pady=(8, 0))
         self.apply_tag_colors()
         theme.on_change(self.apply_tag_colors)
 
-    # -- construction ---------------------------------------------------------------
     def _build_tree(self, columns: Sequence[Column], height: int) -> None:
         """Create the Treeview and its scrollbar."""
         holder = ctk.CTkFrame(self, fg_color="transparent")
@@ -105,23 +84,13 @@ class DataTable(ctk.CTkFrame):
         self.tree.bind("<Double-1>", self._activated)
         self.tree.bind("<Return>", self._activated)
 
-    def _build_pager(self) -> None:
-        """Create the previous/next controls and the page label."""
-        self._pager = ctk.CTkFrame(self, fg_color="transparent")
-        self._info = ctk.CTkLabel(self._pager, text="", font=self._theme.font(-1))
-        self._next = ctk.CTkButton(self._pager, text="Next ›", width=80,
-                                   command=lambda: self._go(self._page + 1))
-        self._prev = ctk.CTkButton(self._pager, text="‹ Prev", width=80,
-                                   command=lambda: self._go(self._page - 1))
-        self._info.pack(side="left", padx=4)
-        self._next.pack(side="right", padx=(6, 0))
-        self._prev.pack(side="right")
-        if self._on_page is not None:
-            self._pager.pack(fill="x", pady=(8, 0))
-
     # -- data -----------------------------------------------------------------------
     def set_rows(self, rows: Iterable[Row]) -> None:
-        """Replace every row; selection is restored when the same id reappears."""
+        """Replace every row, keeping the selection when the same id reappears.
+
+        Args:
+            rows: ``(row id, values, tags)`` triples.
+        """
         selected = self.selected_id()
         self.tree.delete(*self.tree.get_children())
         for row_id, values, tags in rows:
@@ -130,42 +99,63 @@ class DataTable(ctk.CTkFrame):
             self.tree.selection_set(selected)
 
     def set_page(self, page: Page[Any], rows: Iterable[Row]) -> None:
-        """Show one page of rows and update the pager."""
+        """Show one page of rows and update the pager.
+
+        Args:
+            page: The page being displayed (for the pager text and buttons).
+            rows: Rows built from ``page.items``.
+        """
         self.set_rows(rows)
-        self._page = page.page
-        first = 0 if page.total == 0 else (page.page - 1) * page.page_size + 1
-        last = min(page.page * page.page_size, page.total)
-        self._info.configure(
-            text=f"Rows {first}–{last} of {page.total}   ·   Page {page.page} of {page.pages}")
-        self._prev.configure(state="normal" if page.has_previous else "disabled")
-        self._next.configure(state="normal" if page.has_next else "disabled")
+        if self._pager is not None:
+            self._pager.update_page(page)
 
     def selected_id(self) -> str | None:
-        """Id of the selected row, or ``None``."""
+        """Id of the selected row.
+
+        Returns:
+            The row id, or ``None`` when nothing is selected.
+        """
         selection = self.tree.selection()
         return selection[0] if selection else None
 
     def row_values(self, row_id: str) -> list[Any]:
-        """Displayed values of one row."""
+        """Displayed values of one row.
+
+        Args:
+            row_id: Row identifier.
+
+        Returns:
+            The cell texts in column order.
+        """
         return list(self.tree.item(row_id, "values"))
 
     # -- styling --------------------------------------------------------------------
     def apply_tag_colors(self) -> None:
         """(Re)apply status colours for the current light/dark mode."""
-        theme = self._theme
-        self.tree.tag_configure(TAG_LOW, background=theme.mode_color("danger_row"))
-        self.tree.tag_configure(TAG_STOCKOUT, background=theme.mode_color("stockout_row"))
-        self.tree.tag_configure(TAG_INACTIVE, foreground=theme.mode_color("inactive_fg"))
-        self.tree.tag_configure(TAG_ERROR, foreground=theme.color("danger"))
-        self.tree.tag_configure(TAG_WARNING, foreground=theme.color("warning"))
-        self.tree.tag_configure(TAG_SUCCESS, foreground=theme.color("success"))
+        theme, tags = self._theme, self.tree.tag_configure
+        tags(TAG_LOW, background=theme.mode_color("danger_row"))
+        tags(TAG_STOCKOUT, background=theme.mode_color("stockout_row"))
+        tags(TAG_INACTIVE, foreground=theme.mode_color("inactive_fg"))
+        tags(TAG_ERROR, foreground=theme.color("danger"))
+        tags(TAG_WARNING, foreground=theme.color("warning"))
+        tags(TAG_SUCCESS, foreground=theme.color("success"))
 
     def mark_sorted(self, key: str, descending: bool) -> None:
-        """Show the sort arrow on ``key`` (used to display the initial sort)."""
+        """Show the sort arrow on a column header.
+
+        Args:
+            key: Column key being sorted.
+            descending: Sort direction.
+        """
         self._sort_key, self._descending = key, descending
         for column in self._columns.values():
             arrow = (" ▼" if descending else " ▲") if column.key == key else ""
             self.tree.heading(column.key, text=f"{column.heading}{arrow}")
+
+    def destroy(self) -> None:
+        """Unregister the theme listener, then destroy the widget."""
+        self._theme.remove_listener(self.apply_tag_colors)
+        super().destroy()
 
     # -- events ---------------------------------------------------------------------
     def _header_clicked(self, key: str) -> None:
@@ -176,18 +166,8 @@ class DataTable(ctk.CTkFrame):
         self.mark_sorted(key, descending)
         self._on_sort(key, descending)
 
-    def _go(self, page: int) -> None:
-        """Request another page."""
-        if self._on_page is not None:
-            self._on_page(page)
-
     def _activated(self, _event: object) -> None:
         """Forward double-click / Enter on a row."""
         row_id = self.selected_id()
         if row_id and self._on_activate is not None:
             self._on_activate(row_id)
-
-    def destroy(self) -> None:
-        """Unregister the theme listener, then destroy the widget."""
-        self._theme.remove_listener(self.apply_tag_colors)
-        super().destroy()

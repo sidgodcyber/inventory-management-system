@@ -52,14 +52,8 @@ class Toolbar(ctk.CTkFrame):
         Returns:
             The created button.
         """
-        options: dict[str, Any] = {}
-        if kind == "secondary":
-            options = {"fg_color": "transparent", "border_width": 1,
-                       "text_color": ("gray10", "gray90")}
-        elif kind == "danger":
-            options = {"fg_color": self._theme.color("danger")}
         button = ctk.CTkButton(self, text=text, width=width, command=command,
-                               font=self._theme.font(), **options)
+                               font=self._theme.font(), **self._theme.button_style(kind))
         button.pack(side="right", padx=(8, 0))
         return button
 

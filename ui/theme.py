@@ -77,6 +77,22 @@ class Theme:
         """The ``<base>_light`` or ``<base>_dark`` colour for the current mode."""
         return self.palette[f"{base}_{'dark' if self.is_dark() else 'light'}"]
 
+    def button_style(self, kind: str = "primary") -> dict[str, object]:
+        """Keyword options for a CTkButton of the given kind.
+
+        Args:
+            kind: ``primary`` (theme default), ``secondary`` (outlined) or ``danger``.
+
+        Returns:
+            Options to pass as ``**style`` to ``ctk.CTkButton``.
+        """
+        if kind == "secondary":
+            return {"fg_color": "transparent", "border_width": 1,
+                    "text_color": ("gray10", "gray90")}
+        if kind == "danger":
+            return {"fg_color": self.color("danger")}
+        return {}
+
     def pair(self, base: str) -> tuple[str, str]:
         """``(light, dark)`` colours, the form CustomTkinter widgets accept."""
         return self.palette[f"{base}_light"], self.palette[f"{base}_dark"]
