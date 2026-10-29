@@ -20,6 +20,7 @@ from services.container import AppServices
 from ui.components.messages import show_error
 from ui.components.status_bar import StatusBar
 from ui.theme import Theme
+from ui.views.activity_log import ActivityLogView
 from ui.views.base_view import BaseView
 from ui.views.categories import CategoriesView
 from ui.views.dashboard import DashboardView
@@ -49,6 +50,7 @@ VIEW_CLASSES: dict[str, type[BaseView]] = {
     "suppliers": SuppliersView,
     "stock": StockView,
     "settings": SettingsView,
+    "activity": ActivityLogView,
 }
 
 

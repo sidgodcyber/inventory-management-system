@@ -167,15 +167,15 @@ class StockView(BaseView):
         bar = ctk.CTkFrame(self.body, fg_color="transparent")
         bar.pack(fill="x", pady=(0, 8))
         ctk.CTkLabel(bar, text="History", font=self.theme.font(2, "bold")).pack(side="left")
-        self.filter_product = ctk.CTkOptionMenu(bar, values=[ALL_PRODUCTS], width=220,
+        self.filter_product = ctk.CTkOptionMenu(bar, values=[ALL_PRODUCTS], width=200,
                                                 dynamic_resizing=False)
         self.filter_product.pack(side="left", padx=(14, 0))
         self.filter_type = ctk.CTkOptionMenu(bar, values=[ALL_TYPES, *TRANSACTION_TYPES],
                                              width=110)
         self.filter_type.pack(side="left", padx=(8, 0))
-        self.date_from = ctk.CTkEntry(bar, width=110)
+        self.date_from = ctk.CTkEntry(bar, width=140)
         self.date_from.pack(side="left", padx=(8, 0))
-        self.date_to = ctk.CTkEntry(bar, width=110)
+        self.date_to = ctk.CTkEntry(bar, width=140)
         self.date_to.pack(side="left", padx=(6, 0))
         for text, command, kind in (("Export CSV", self._export, "transparent"),
                                     ("Clear", self._clear_filters, "transparent"),
@@ -251,8 +251,8 @@ class StockView(BaseView):
         """Reload products, date hints and the history."""
         self._load_products()
         example = self._date_example()
-        self.date_from.configure(placeholder_text=f"From {example}")
-        self.date_to.configure(placeholder_text=f"To {example}")
+        self.date_from.configure(placeholder_text=f"From e.g. {example}")
+        self.date_to.configure(placeholder_text=f"To e.g. {example}")
         self.refresh_history()
 
     def _date_example(self) -> str:
