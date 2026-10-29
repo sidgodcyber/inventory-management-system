@@ -29,6 +29,7 @@ from repositories.stock_transaction_repository import StockTransactionRepository
 from repositories.supplier_repository import SupplierRepository
 from services.category_service import CategoryService
 from services.product_service import ProductRepos, ProductService
+from services.report_service import ReportService
 from services.stock_service import StockService
 from services.supplier_service import SupplierService
 from utils.validators import Validator
@@ -46,6 +47,7 @@ class AppServices:
         suppliers: Supplier service.
         products: Product service.
         stock: Stock movement service.
+        reports: Turnover and dashboard analytics.
     """
 
     config: AppConfig
@@ -55,6 +57,7 @@ class AppServices:
     suppliers: SupplierService
     products: ProductService
     stock: StockService
+    reports: ReportService
 
 
 def build_services(config: AppConfig, db: Database) -> AppServices:
@@ -72,8 +75,8 @@ def build_services(config: AppConfig, db: Database) -> AppServices:
     manager.seed_defaults()
     configure_activity_logger(ActivityLogRepository(db), lambda: manager.get("operator_name"))
     repos = ProductRepos(ProductRepository(db), CategoryRepository(db), SupplierRepository(db))
-    stock = StockService(repos.products, StockTransactionRepository(db), validator, manager,
-                         db, config)
+    transactions = StockTransactionRepository(db)
+    stock = StockService(repos.products, transactions, validator, manager, db, config)
     return AppServices(
         config=config,
         db=db,
@@ -82,4 +85,5 @@ def build_services(config: AppConfig, db: Database) -> AppServices:
         suppliers=SupplierService(repos.suppliers, validator, db),
         products=ProductService(repos, stock, validator, manager, db, config),
         stock=stock,
+        reports=ReportService(repos.products, transactions, config),
     )
