@@ -24,6 +24,7 @@ from ui.views.base_view import BaseView
 from ui.views.categories import CategoriesView
 from ui.views.placeholder import PlaceholderView
 from ui.views.products import ProductsView
+from ui.views.stock import StockView
 from ui.views.suppliers import SuppliersView
 
 # Sidebar entries: (key, label). The view class for each key is in VIEW_CLASSES.
@@ -43,6 +44,7 @@ VIEW_CLASSES: dict[str, type[BaseView]] = {
     "products": ProductsView,
     "categories": CategoriesView,
     "suppliers": SuppliersView,
+    "stock": StockView,
 }
 
 

@@ -26,6 +26,7 @@ TAG_STOCKOUT = "stockout"
 TAG_INACTIVE = "inactive"
 TAG_ERROR = "error"
 TAG_WARNING = "warning"
+TAG_SUCCESS = "success"
 
 Row = tuple[str, Sequence[Any], tuple[str, ...]]  # (row id, values, tags)
 
@@ -157,6 +158,7 @@ class DataTable(ctk.CTkFrame):
         self.tree.tag_configure(TAG_INACTIVE, foreground=theme.mode_color("inactive_fg"))
         self.tree.tag_configure(TAG_ERROR, foreground=theme.color("danger"))
         self.tree.tag_configure(TAG_WARNING, foreground=theme.color("warning"))
+        self.tree.tag_configure(TAG_SUCCESS, foreground=theme.color("success"))
 
     def mark_sorted(self, key: str, descending: bool) -> None:
         """Show the sort arrow on ``key`` (used to display the initial sort)."""
