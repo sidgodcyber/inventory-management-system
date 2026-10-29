@@ -40,7 +40,7 @@ from models.common import ListQuery  # noqa: E402
 from services.container import AppServices, build_services  # noqa: E402
 
 SIMULATION_DAYS = 90
-NEGLECT_FROM_DAY = 74  # neglected products are not reordered after this day
+NEGLECT_FROM_DAY = 62  # neglected products are not reordered after this day
 OPERATORS = ("Admin", "Ravi Kumar", "Asha Verma")
 
 CATEGORIES = (
@@ -259,9 +259,9 @@ def opening_stock(services: AppServices, sims: list[SimProduct], start: date,
 
 
 def simulate(services: AppServices, sims: list[SimProduct], rng: random.Random) -> Stats:
-    """Run the day-by-day simulation ending today."""
+    """Run the day-by-day simulation ending yesterday (no future timestamps)."""
     stats = Stats()
-    start = date.today() - timedelta(days=SIMULATION_DAYS - 1)
+    start = date.today() - timedelta(days=SIMULATION_DAYS)
     opening_stock(services, sims, start, rng, stats)
     for day_no in range(1, SIMULATION_DAYS):
         day = start + timedelta(days=day_no)
