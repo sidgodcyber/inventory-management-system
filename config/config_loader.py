@@ -53,6 +53,7 @@ SCHEMA: dict[str, type | tuple[type, ...]] = {
     "ui.search_debounce_ms": int,
     "ui.table_row_height": int,
     "ui.chart_dpi": int,
+    "ui.chart_height": int,
     "ui.palette": dict,
     "inventory.currency_symbol": str,
     "inventory.currency_options": list,

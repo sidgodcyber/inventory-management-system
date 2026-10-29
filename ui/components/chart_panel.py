@@ -38,7 +38,8 @@ class ChartPanel(ctk.CTkFrame):
     def __init__(self, master: Any, theme: Theme, title: str, dpi: int) -> None:
         super().__init__(master, corner_radius=10)
         self._theme = theme
-        self._draw: DrawFunction | None = None
+        self._draw_callback: DrawFunction | None = None  # not "_draw": CTk uses that name
+        self._grid_axis = "y"
         ctk.CTkLabel(self, text=title, font=theme.font(1, "bold"), anchor="w").pack(
             fill="x", padx=14, pady=(10, 0))
         self.figure = Figure(figsize=(5, 3), dpi=dpi)
@@ -46,18 +47,24 @@ class ChartPanel(ctk.CTkFrame):
         self.canvas.get_tk_widget().pack(fill="both", expand=True, padx=10, pady=10)
         theme.on_change(self.redraw)
 
-    def plot(self, draw: DrawFunction) -> None:
-        """Remember ``draw(ax, theme)`` and render it."""
-        self._draw = draw
+    def plot(self, draw: DrawFunction, grid_axis: str = "y") -> None:
+        """Remember ``draw(ax, theme)`` and render it.
+
+        Args:
+            draw: Callback that plots onto the axes.
+            grid_axis: ``"y"`` for column/line charts, ``"x"`` for horizontal bars.
+        """
+        self._draw_callback = draw
+        self._grid_axis = grid_axis
         self.redraw()
 
     def redraw(self) -> None:
         """Clear the figure, re-run the draw callback and apply theme colours."""
-        if self._draw is None:
+        if self._draw_callback is None:
             return
         self.figure.clear()
         ax = self.figure.add_subplot(111)
-        self._draw(ax, self._theme)
+        self._draw_callback(ax, self._theme)
         self._style(ax)
         self.figure.tight_layout()
         self.canvas.draw_idle()
@@ -66,7 +73,7 @@ class ChartPanel(ctk.CTkFrame):
         """Apply background, text and grid colours for the current mode."""
         background = self._theme.mode_color("chart_bg")
         foreground = self._theme.mode_color("chart_fg")
-        self.figure.set_facecolor(background)
+        self.figure.set_facecolor(self._theme.mode_color("card_bg"))  # blends into the card
         ax.set_facecolor(background)
         ax.tick_params(colors=foreground, labelsize=8)
         ax.xaxis.label.set_color(foreground)
@@ -74,7 +81,7 @@ class ChartPanel(ctk.CTkFrame):
         ax.title.set_color(foreground)
         for spine in ax.spines.values():
             spine.set_color(self._theme.mode_color("grid"))
-        ax.grid(axis="y", color=self._theme.mode_color("grid"), linewidth=0.6)
+        ax.grid(axis=self._grid_axis, color=self._theme.mode_color("grid"), linewidth=0.6)
         ax.set_axisbelow(True)
         legend = ax.get_legend()
         if legend is not None:

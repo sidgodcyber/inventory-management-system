@@ -26,7 +26,7 @@ class StatCard(ctk.CTkFrame):
     def __init__(self, master: Any, theme: Theme, title: str, accent: str = "accent") -> None:
         super().__init__(master, corner_radius=10)
         self._theme = theme
-        self._strip = ctk.CTkFrame(self, width=5, corner_radius=3,
+        self._strip = ctk.CTkFrame(self, width=5, height=10, corner_radius=3,
                                    fg_color=theme.color(accent))
         self._strip.pack(side="left", fill="y", padx=(8, 0), pady=10)
         body = ctk.CTkFrame(self, fg_color="transparent")
