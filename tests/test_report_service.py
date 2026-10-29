@@ -3,8 +3,10 @@
 Scenario for product A (unit cost 10):
 
 * 2026-01-01 IN 100, 2026-03-10 OUT 40, 2026-03-20 IN 20, so on hand = 80
-* Period 1-31 Mar: opening 100, closing 80, avg value 900, COGS 400, turnover 0.44
-* Period 1-15 Mar: opening 100, closing 60, avg value 800, COGS 400, turnover 0.50
+* Period 1-31 Mar: daily closing stock is 100 for 9 days, 60 for 10, 80 for 12,
+  avg qty = 2460 / 31 = 79.355, avg value 793.55, COGS 400, turnover 0.50
+* Period 1-15 Mar: 100 for 9 days, 60 for 6, avg qty 84, avg value 840,
+  COGS 400, turnover 0.48
 
 Layer: tests
 Author: Siddhi Baluja (240302054)
@@ -45,8 +47,8 @@ def test_turnover_full_month(services: AppServices, scenario: dict[str, int]) ->
     rows = {r.sku: r for r in services.reports.turnover_report(date(2026, 3, 1),
                                                                 date(2026, 3, 31))}
     a = rows["A-1"]
-    assert (a.units_sold, a.cogs, a.average_inventory_value) == (40, 400.0, 900.0)
-    assert a.turnover == pytest.approx(0.44)
+    assert (a.units_sold, a.cogs, a.average_inventory_value) == (40, 400.0, 793.55)
+    assert a.turnover == pytest.approx(0.5)
     assert a.avg_daily_usage == pytest.approx(1.29)
     assert a.days_of_stock == pytest.approx(62.0)
 
@@ -56,7 +58,7 @@ def test_turnover_partial_period_uses_closing_stock(
 ) -> None:
     """Movements after the period end are excluded from the closing stock."""
     a = services.reports.turnover_report(date(2026, 3, 1), date(2026, 3, 15))[0]
-    assert a.sku == "A-1" and a.average_inventory_value == 800.0 and a.turnover == 0.5
+    assert a.sku == "A-1" and a.average_inventory_value == 840.0 and a.turnover == 0.48
     assert a.days_of_stock == pytest.approx(30.0)
 
 
@@ -69,7 +71,7 @@ def test_product_without_usage(services: AppServices, scenario: dict[str, int]) 
 
 def test_overall_turnover(services: AppServices, scenario: dict[str, int]) -> None:
     """Store-wide turnover = total COGS / total average inventory value."""
-    assert services.reports.overall_turnover(date(2026, 3, 1), date(2026, 3, 31)) == 0.44
+    assert services.reports.overall_turnover(date(2026, 3, 1), date(2026, 3, 31)) == 0.5
 
 
 def test_empty_store_reports_zero(services: AppServices) -> None:
@@ -103,6 +105,6 @@ def test_report_exports(services: AppServices, scenario: dict[str, int], tmp_pat
     turnover = services.reports.export_turnover_csv(date(2026, 3, 1), date(2026, 3, 31),
                                                     tmp_path / "t.csv")
     low = services.reports.export_low_stock_csv(tmp_path / "l.csv")
-    assert pd.read_csv(turnover, encoding="utf-8-sig").iloc[0]["Turnover"] == 0.44
+    assert pd.read_csv(turnover, encoding="utf-8-sig").iloc[0]["Turnover"] == 0.5
     assert pd.read_csv(low, encoding="utf-8-sig").iloc[0]["Shortfall"] == 5
     assert len(audit("EXPORT")) == 2

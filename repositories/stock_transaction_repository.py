@@ -127,6 +127,22 @@ class StockTransactionRepository(BaseRepository):
         )
         return {row["product_id"]: int(row["delta"]) for row in rows}
 
+    def daily_net_change(self, start: str, end: str) -> list[tuple[int, str, int]]:
+        """Signed quantity change per product per day between two timestamps.
+
+        Returns:
+            ``[(product_id, YYYY-MM-DD, delta), ...]``; used to rebuild the
+            daily closing stock for average inventory value.
+        """
+        rows = self.db.query_all(
+            f"""SELECT t.product_id, substr(t.created_at, 1, 10) AS day,
+                       SUM({_SIGNED_QTY}) AS delta
+                  FROM stock_transactions t WHERE t.created_at BETWEEN ? AND ?
+                 GROUP BY t.product_id, day ORDER BY day""",
+            (start, end),
+        )
+        return [(row["product_id"], row["day"], int(row["delta"])) for row in rows]
+
     def daily_totals(self, start: str, end: str) -> list[tuple[str, str, int]]:
         """Units moved IN and OUT per calendar day (adjustments excluded).
 

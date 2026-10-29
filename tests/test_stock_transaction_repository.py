@@ -91,3 +91,10 @@ def test_daily_totals_exclude_adjustments(repo: StockTransactionRepository) -> N
     """The in-vs-out chart ignores adjustments."""
     totals = repo.daily_totals("2026-01-01 00:00:00", "2026-01-31 23:59:59")
     assert totals == [("2026-01-01", "IN", 100), ("2026-01-02", "OUT", 30)]
+
+
+@pytest.mark.usefixtures("history")
+def test_daily_net_change(repo: StockTransactionRepository, product_id: int) -> None:
+    """Signed per-day deltas within the window."""
+    rows = repo.daily_net_change("2026-01-02 00:00:00", "2026-01-31 23:59:59")
+    assert rows == [(product_id, "2026-01-02", -30), (product_id, "2026-01-03", -5)]

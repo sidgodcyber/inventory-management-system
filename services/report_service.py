@@ -2,11 +2,13 @@
 
 Formulas (documented in docs/SRS.md, section CTQ):
 
-* ``COGS``         = sum over OUT movements in the period of quantity x unit cost
-* ``opening qty``  = current qty - net movement after the day before the period
-* ``closing qty``  = current qty - net movement after the period end
-* ``avg inventory`` = (opening qty + closing qty) / 2 x current unit cost
-* ``turnover``     = COGS / average inventory value
+* ``COGS``          = sum over OUT movements in the period of quantity x unit cost
+* ``closing qty(d)`` = stock at the end of day d, rebuilt backwards from the
+  current quantity using the movement history
+* ``avg inventory`` = mean of closing qty(d) over every day of the period
+  x current unit cost (a daily average is far more accurate than
+  (opening + closing) / 2 when stock is replenished during the period)
+* ``turnover``      = COGS / average inventory value
 * ``avg daily usage`` = units issued / days in period
 * ``days of stock``   = quantity on hand / average daily usage
 
@@ -16,7 +18,7 @@ Author: Siddhi Baluja (240302054)
 
 from __future__ import annotations
 
-from datetime import date, timedelta
+from datetime import date
 from pathlib import Path
 
 import pandas as pd
@@ -29,7 +31,7 @@ from models.reports import DashboardStats, TurnoverRow
 from repositories.product_repository import ProductRepository
 from repositories.stock_transaction_repository import StockTransactionRepository
 from utils.csv_export import default_export_path, write_csv
-from utils.date_helpers import date_range, days_ago, days_between, end_of_day, period_bounds
+from utils.date_helpers import date_range, days_ago, days_between, period_bounds
 
 TURNOVER_COLUMNS: tuple[tuple[str, str], ...] = (
     ("sku", "SKU"),
@@ -104,24 +106,45 @@ class ReportService:
         products = self._products.list_all(active_only=True)
         if not products:
             return pd.DataFrame()
-        period_start, period_end = period_bounds(start, end)
-        issues = self._transactions.issues_by_product(period_start, period_end)
-        change_since_start = self._transactions.net_change_after(
-            end_of_day(start - timedelta(days=1)))
-        change_after_end = self._transactions.net_change_after(period_end)
+        issues = self._transactions.issues_by_product(*period_bounds(start, end))
         frame = pd.DataFrame([_product_record(p) for p in products])
         ids = frame["product_id"]
         frame["units_sold"] = ids.map(lambda i: issues.get(i, (0, 0.0))[0])
         frame["cogs"] = ids.map(lambda i: issues.get(i, (0, 0.0))[1])
-        opening = frame["quantity_on_hand"] - ids.map(lambda i: change_since_start.get(i, 0))
-        closing = frame["quantity_on_hand"] - ids.map(lambda i: change_after_end.get(i, 0))
-        frame["average_inventory_value"] = (opening + closing) / 2 * frame["unit_cost"]
+        average_qty = self._average_quantities(frame.set_index("product_id")["quantity_on_hand"],
+                                               start, end)
+        frame["average_inventory_value"] = ids.map(average_qty) * frame["unit_cost"]
         avg = frame["average_inventory_value"]
         frame["turnover"] = (frame["cogs"] / avg.where(avg > 0)).fillna(0.0)
         frame["avg_daily_usage"] = frame["units_sold"] / days_between(start, end)
         usage = frame["avg_daily_usage"]
         frame["days_of_stock"] = frame["quantity_on_hand"] / usage.where(usage > 0)
         return frame.drop(columns=["unit_cost"])
+
+    def _average_quantities(self, on_hand: pd.Series, start: date, end: date) -> pd.Series:
+        """Mean daily closing quantity per product over ``start``..``end``.
+
+        Args:
+            on_hand: Current quantity indexed by product id.
+            start: First day of the period.
+            end: Last day of the period.
+
+        Returns:
+            Average quantity indexed by product id.
+        """
+        period_start, period_end = period_bounds(start, end)
+        after_end = self._transactions.net_change_after(period_end)
+        closing_at_end = on_hand - on_hand.index.map(lambda i: after_end.get(i, 0))
+        deltas = pd.DataFrame(self._transactions.daily_net_change(period_start, period_end),
+                              columns=["product_id", "day", "delta"])
+        table = deltas.pivot_table(index="product_id", columns="day", values="delta",
+                                   aggfunc="sum", fill_value=0)
+        table.columns = pd.to_datetime(table.columns).date
+        table = table.reindex(index=on_hand.index, columns=date_range(start, end), fill_value=0)
+        # Movements later in the period than day d must be undone to get closing(d).
+        later = table.sum(axis=1).to_numpy()[:, None] - table.cumsum(axis=1).to_numpy()
+        daily_closing = closing_at_end.to_numpy()[:, None] - later
+        return pd.Series(daily_closing.mean(axis=1), index=on_hand.index)
 
     # -- dashboard ----------------------------------------------------------------
     def dashboard_stats(self, today: date | None = None) -> DashboardStats:
