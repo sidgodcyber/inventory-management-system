@@ -1,0 +1,8 @@
+# Runtime
+customtkinter==6.0.0
+pandas==2.3.2
+matplotlib==3.11.0
+
+# Quality & testing
+pytest==9.1.1
+radon==6.0.1
