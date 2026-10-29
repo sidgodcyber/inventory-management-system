@@ -20,12 +20,13 @@ from services.container import AppServices
 from ui.components.messages import show_error
 from ui.components.status_bar import StatusBar
 from ui.theme import Theme
+from ui.views.about import AboutView
 from ui.views.activity_log import ActivityLogView
 from ui.views.base_view import BaseView
 from ui.views.categories import CategoriesView
 from ui.views.dashboard import DashboardView
-from ui.views.placeholder import PlaceholderView
 from ui.views.products import ProductsView
+from ui.views.reports import ReportsView
 from ui.views.settings import SettingsView
 from ui.views.stock import StockView
 from ui.views.suppliers import SuppliersView
@@ -50,7 +51,9 @@ VIEW_CLASSES: dict[str, type[BaseView]] = {
     "suppliers": SuppliersView,
     "stock": StockView,
     "settings": SettingsView,
+    "reports": ReportsView,
     "activity": ActivityLogView,
+    "about": AboutView,
 }
 
 
@@ -143,8 +146,7 @@ class App(ctk.CTk):
 
     def _create_view(self, key: str) -> BaseView:
         """Instantiate and cache a screen."""
-        view_class = VIEW_CLASSES.get(key, PlaceholderView)
-        self._views[key] = view_class(self.content, self)
+        self._views[key] = VIEW_CLASSES[key](self.content, self)
         return self._views[key]
 
     def _highlight(self, key: str) -> None:

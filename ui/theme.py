@@ -44,6 +44,14 @@ class Theme:
             self._fonts[key] = ctk.CTkFont(family=self.family, size=key[0], weight=weight)
         return self._fonts[key]
 
+    def mono_font(self, delta: int = -1) -> ctk.CTkFont:
+        """Monospace font (diagrams, code-like text)."""
+        key = (self.size + delta, "mono")
+        if key not in self._fonts:
+            self._fonts[key] = ctk.CTkFont(family=self.config.get("ui.mono_font_family"),
+                                           size=key[0])
+        return self._fonts[key]
+
     def heading_font(self) -> ctk.CTkFont:
         """Font for page titles."""
         return self.font(self.heading_size - self.size, "bold")
