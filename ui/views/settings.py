@@ -46,16 +46,19 @@ class SettingsView(BaseView):
         source = self.services.config.source
         ctk.CTkLabel(bar, text=f"Defaults file: {source}", font=self.theme.font(-1),
                      text_color=self.theme.color("muted")).pack(side="left")
-        ctk.CTkButton(bar, text="Reset to defaults", width=140, fg_color=self.theme.color("danger"),
-                      command=self._reset).pack(side="right")
-        ctk.CTkButton(bar, text="Revert", width=90, fg_color="transparent", border_width=1,
-                      text_color=("gray10", "gray90"), command=self.refresh).pack(
-            side="right", padx=(0, 8))
-        ctk.CTkButton(bar, text="Save changes", width=130, command=self._save).pack(
-            side="right", padx=(0, 8))
+        for text, command, kind, width in (("Reset to defaults", self._reset, "danger", 140),
+                                           ("Revert", self.refresh, "secondary", 90),
+                                           ("Save changes", self._save, "primary", 130)):
+            ctk.CTkButton(bar, text=text, width=width, command=command,
+                          **self.theme.button_style(kind)).pack(side="right", padx=(8, 0))
 
     def _add_row(self, row: int, definition: SettingDefinition) -> None:
-        """Label, description and input for one setting."""
+        """Add the label, description (with default) and input for one setting.
+
+        Args:
+            row: Grid row in the form.
+            definition: Setting metadata (key, label, description).
+        """
         text = ctk.CTkFrame(self.form, fg_color="transparent")
         text.grid(row=row, column=0, sticky="ew", padx=16, pady=8)
         ctk.CTkLabel(text, text=definition.label, font=self.theme.font(1, "bold"),
@@ -69,7 +72,15 @@ class SettingsView(BaseView):
         self._inputs[definition.key] = widget
 
     def _make_input(self, key: str) -> Any:
-        """Option menu for fixed choices, combo box for suggestions, entry otherwise."""
+        """Create the input widget that suits a setting.
+
+        Args:
+            key: Setting key.
+
+        Returns:
+            An option menu for fixed choices, a combo box when the choices are
+            only suggestions (currency, date format), otherwise an entry.
+        """
         settings = self.services.settings
         options = settings.options(key)
         if options and settings.is_free_choice(key):
@@ -81,13 +92,21 @@ class SettingsView(BaseView):
 
     # -- data -------------------------------------------------------------------------
     def refresh(self) -> None:
-        """Load current values into the inputs (also used by "Revert")."""
+        """Load the current values into the inputs.
+
+        Also bound to the Revert button, which discards unsaved edits.
+        """
         for key, value in self.services.settings.values().items():
             self._set_input(self._inputs[key], str(value))
 
     @staticmethod
     def _set_input(widget: Any, value: str) -> None:
-        """Put ``value`` into any of the three input kinds."""
+        """Show a value in an entry, option menu or combo box.
+
+        Args:
+            widget: Input created by :meth:`_make_input`.
+            value: Text to display.
+        """
         if isinstance(widget, ctk.CTkEntry):
             widget.delete(0, "end")
             widget.insert(0, value)
@@ -95,11 +114,20 @@ class SettingsView(BaseView):
             widget.set(value)
 
     def on_setting_changed(self, key: str, value: Any) -> None:
-        """Keep inputs in sync when settings change while this screen is open."""
+        """Keep the inputs in sync when a setting changes while this screen is open.
+
+        Args:
+            key: Changed setting.
+            value: Its new value.
+        """
         self._set_input(self._inputs[key], str(value))
 
     def _save(self) -> None:
-        """Validate and save every value; report what changed."""
+        """Validate and save every value through the settings service.
+
+        Saving is all-or-nothing; each real change is audited as SETTINGS_CHANGE
+        and applied immediately by the listeners in the main window.
+        """
         values = {key: widget.get() for key, widget in self._inputs.items()}
         changed = self.guarded("Settings > Save", lambda: self.services.settings.save(values))
         if changed is not None:
@@ -118,7 +146,12 @@ class SettingsView(BaseView):
             self._report(changed, "Reset")
 
     def _report(self, changed: dict[str, tuple[Any, Any]], verb: str) -> None:
-        """Toast summarising the changed settings."""
+        """Toast summarising what changed.
+
+        Args:
+            changed: ``{key: (old, new)}`` returned by the service.
+            verb: "Saved" or "Reset".
+        """
         if not changed:
             self.notify("No changes to save.", "info")
             return

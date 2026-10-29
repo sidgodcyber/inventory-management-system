@@ -6,7 +6,7 @@ Author: Siddhi Baluja (240302054)
 
 from __future__ import annotations
 
-from ui.views.activity_log import summarize
+from ui.views.activity_summary import summarize
 
 
 def test_update_changes_summary() -> None:
