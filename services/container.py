@@ -27,11 +27,14 @@ from repositories.product_repository import ProductRepository
 from repositories.settings_repository import SettingsRepository
 from repositories.stock_transaction_repository import StockTransactionRepository
 from repositories.supplier_repository import SupplierRepository
+from services.activity_service import ActivityService
 from services.category_service import CategoryService
 from services.product_service import ProductRepos, ProductService
 from services.report_service import ReportService
+from services.settings_service import SettingsService
 from services.stock_service import StockService
 from services.supplier_service import SupplierService
+from services.system_service import SystemService
 from utils.validators import Validator
 
 
@@ -42,22 +45,26 @@ class AppServices:
     Attributes:
         config: Validated application configuration.
         db: Open database (exposed for shutdown only).
-        settings_manager: Typed runtime settings.
+        settings: System Settings service.
         categories: Category service.
         suppliers: Supplier service.
         products: Product service.
         stock: Stock movement service.
         reports: Turnover and dashboard analytics.
+        activity: Activity log, error and login recording.
+        system: About / architecture information.
     """
 
     config: AppConfig
     db: Database
-    settings_manager: SettingsManager
+    settings: SettingsService
     categories: CategoryService
     suppliers: SupplierService
     products: ProductService
     stock: StockService
     reports: ReportService
+    activity: ActivityService
+    system: SystemService
 
 
 def build_services(config: AppConfig, db: Database) -> AppServices:
@@ -73,17 +80,20 @@ def build_services(config: AppConfig, db: Database) -> AppServices:
     validator = Validator(config)
     manager = SettingsManager(SettingsRepository(db), config)
     manager.seed_defaults()
-    configure_activity_logger(ActivityLogRepository(db), lambda: manager.get("operator_name"))
+    activity_repo = ActivityLogRepository(db)
+    configure_activity_logger(activity_repo, lambda: manager.get("operator_name"))
     repos = ProductRepos(ProductRepository(db), CategoryRepository(db), SupplierRepository(db))
     transactions = StockTransactionRepository(db)
     stock = StockService(repos.products, transactions, validator, manager, db, config)
     return AppServices(
         config=config,
         db=db,
-        settings_manager=manager,
+        settings=SettingsService(manager, validator, db, config),
         categories=CategoryService(repos.categories, validator, db),
         suppliers=SupplierService(repos.suppliers, validator, db),
         products=ProductService(repos, stock, validator, manager, db, config),
         stock=stock,
         reports=ReportService(repos.products, transactions, config),
+        activity=ActivityService(activity_repo, manager, db, config),
+        system=SystemService(config, db),
     )
