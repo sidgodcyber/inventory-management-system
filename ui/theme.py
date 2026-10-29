@@ -49,8 +49,11 @@ class Theme:
         return self.font(self.heading_size - self.size, "bold")
 
     def tk_font(self, delta: int = 0, weight: str = "normal") -> tuple[str, int, str]:
-        """Plain Tk font tuple (for ttk widgets that cannot use CTkFont)."""
-        return (self.family, self.size + delta, weight)
+        """Plain Tk font tuple (for ttk widgets that cannot use CTkFont).
+
+        Tk reads a negative size as pixels, matching CustomTkinter's sizing.
+        """
+        return (self.family, -(self.size + delta), weight)
 
     # -- colours --------------------------------------------------------------------
     @staticmethod

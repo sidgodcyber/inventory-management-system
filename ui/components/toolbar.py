@@ -33,13 +33,11 @@ class Toolbar(ctk.CTkFrame):
         self._on_search = on_search
         self._debounce_ms = debounce_ms
         self._job: str | None = None
-        self.search = ctk.CTkEntry(self, width=280, placeholder_text=placeholder,
+        self.search = ctk.CTkEntry(self, width=300, placeholder_text=placeholder,
                                    font=theme.font())
         if on_search is not None:
             self.search.pack(side="left")
             self.search.bind("<KeyRelease>", self._schedule)
-        self.left = ctk.CTkFrame(self, fg_color="transparent")
-        self.left.pack(side="left", padx=(10, 0))
 
     def add_button(self, text: str, command: Callable[[], None], kind: str = "primary",
                    width: int = 110) -> ctk.CTkButton:

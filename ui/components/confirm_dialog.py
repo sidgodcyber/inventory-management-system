@@ -10,6 +10,7 @@ from typing import Any
 
 import customtkinter as ctk
 
+from ui.components.window_utils import center_on_parent
 from ui.theme import Theme
 
 
@@ -44,6 +45,7 @@ class ConfirmDialog(ctk.CTkToplevel):
         color = theme.color("danger") if danger else theme.color("accent")
         ctk.CTkButton(buttons, text=confirm_text, width=120, fg_color=color,
                       command=self._confirm).pack(side="right", padx=(0, 8))
+        center_on_parent(self, master)
         self.bind("<Escape>", lambda _e: self.destroy())
         self.bind("<Return>", lambda _e: self._confirm())
         self.after(120, self._activate)

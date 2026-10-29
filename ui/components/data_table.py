@@ -85,7 +85,6 @@ class DataTable(ctk.CTkFrame):
         self._build_pager()
         self.apply_tag_colors()
         theme.on_change(self.apply_tag_colors)
-        self.bind("<Destroy>", self._on_destroy, add="+")
 
     # -- construction ---------------------------------------------------------------
     def _build_tree(self, columns: Sequence[Column], height: int) -> None:
@@ -186,7 +185,7 @@ class DataTable(ctk.CTkFrame):
         if row_id and self._on_activate is not None:
             self._on_activate(row_id)
 
-    def _on_destroy(self, event: Any) -> None:
-        """Unregister the theme listener when the table is destroyed."""
-        if event.widget is self:
-            self._theme.remove_listener(self.apply_tag_colors)
+    def destroy(self) -> None:
+        """Unregister the theme listener, then destroy the widget."""
+        self._theme.remove_listener(self.apply_tag_colors)
+        super().destroy()

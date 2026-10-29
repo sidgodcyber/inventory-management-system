@@ -201,6 +201,11 @@ class SettingsManager:
         """Register ``listener(key, new_value)`` to run after every change."""
         self._listeners.append(listener)
 
+    def unsubscribe(self, listener: SettingListener) -> None:
+        """Stop notifying ``listener`` (e.g. when the main window closes)."""
+        if listener in self._listeners:
+            self._listeners.remove(listener)
+
     # -- internals -------------------------------------------------------------
     def _values(self) -> dict[str, Any]:
         """Load (once) and return the typed cache of all settings."""

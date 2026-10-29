@@ -113,6 +113,10 @@ class SettingsService:
         """Run ``listener(key, value)`` after each change (used by the UI)."""
         self._manager.subscribe(listener)
 
+    def unsubscribe(self, listener: SettingListener) -> None:
+        """Stop notifying ``listener``."""
+        self._manager.unsubscribe(listener)
+
     def apply_startup(self) -> None:
         """Apply settings that affect infrastructure when the app starts."""
         set_log_level(self._manager.get("log_level"))

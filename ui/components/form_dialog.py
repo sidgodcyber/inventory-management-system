@@ -17,6 +17,7 @@ from typing import Any
 
 import customtkinter as ctk
 
+from ui.components.window_utils import center_on_parent
 from ui.theme import Theme
 
 # Field kinds supported by the dialog.
@@ -77,6 +78,7 @@ class FormDialog(ctk.CTkToplevel):
         self.resizable(False, False)
         self.transient(master.winfo_toplevel())
         self._build(title, initial or {}, submit_text)
+        center_on_parent(self, master)
         self.bind("<Escape>", lambda _e: self.destroy())
         # CTkToplevel needs a moment to map before it can grab focus on Windows.
         self.after(120, self._activate)

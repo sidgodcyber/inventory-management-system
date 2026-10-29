@@ -82,6 +82,16 @@ def test_listeners_notified_only_on_change(manager: SettingsManager) -> None:
     assert calls == [("currency_symbol", "$")]
 
 
+def test_unsubscribed_listener_not_called(manager: SettingsManager) -> None:
+    """Closed windows stop receiving notifications."""
+    calls: list[str] = []
+    listener = lambda key, value: calls.append(key)  # noqa: E731
+    manager.subscribe(listener)
+    manager.unsubscribe(listener)
+    manager.set("currency_symbol", "$")
+    assert calls == []
+
+
 def test_missing_row_falls_back_to_config(store: MemoryStore, config: AppConfig) -> None:
     """With nothing stored, defaults come from config.json."""
     settings = SettingsManager(store, config)

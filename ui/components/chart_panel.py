@@ -45,7 +45,6 @@ class ChartPanel(ctk.CTkFrame):
         self.canvas = FigureCanvasTkAgg(self.figure, master=self)
         self.canvas.get_tk_widget().pack(fill="both", expand=True, padx=10, pady=10)
         theme.on_change(self.redraw)
-        self.bind("<Destroy>", self._on_destroy, add="+")
 
     def plot(self, draw: DrawFunction) -> None:
         """Remember ``draw(ax, theme)`` and render it."""
@@ -83,7 +82,7 @@ class ChartPanel(ctk.CTkFrame):
             for text in legend.get_texts():
                 text.set_color(foreground)
 
-    def _on_destroy(self, event: Any) -> None:
-        """Unregister from theme changes when destroyed."""
-        if event.widget is self:
-            self._theme.remove_listener(self.redraw)
+    def destroy(self) -> None:
+        """Unregister from theme changes, then destroy the widget."""
+        self._theme.remove_listener(self.redraw)
+        super().destroy()
