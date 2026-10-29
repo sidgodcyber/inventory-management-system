@@ -45,6 +45,7 @@
   },
   "inventory": {
     "currency_symbol": "₹",
+    "currency_options": ["₹", "$", "€", "£", "¥"],
     "default_reorder_level": 10,
     "turnover_period_days": 90,
     "chart_days": 30,
@@ -53,7 +54,8 @@
   },
   "display": {
     "page_size": 15,
-    "date_format": "%Y-%m-%d"
+    "date_format": "%Y-%m-%d",
+    "date_format_options": ["%Y-%m-%d", "%d-%m-%Y", "%d/%m/%Y", "%m/%d/%Y", "%d %b %Y"]
   },
   "activity_log": {
     "retention_days": 180

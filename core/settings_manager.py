@@ -193,6 +193,10 @@ class SettingsManager:
             self._notify(key, new_value)
         return old_value, new_value
 
+    def reload(self) -> None:
+        """Drop the in-memory cache so the next read comes from the store."""
+        self._cache = None
+
     def subscribe(self, listener: SettingListener) -> None:
         """Register ``listener(key, new_value)`` to run after every change."""
         self._listeners.append(listener)
