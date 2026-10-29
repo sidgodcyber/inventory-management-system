@@ -1,16 +1,8 @@
-"""Inventory analytics: turnover rate, days of stock, dashboard figures.
+"""Inventory analytics: turnover rate, days of stock and dashboard figures.
 
-Formulas (documented in docs/SRS.md, section CTQ):
-
-* ``COGS``          = sum over OUT movements in the period of quantity x unit cost
-* ``closing qty(d)`` = stock at the end of day d, rebuilt backwards from the
-  current quantity using the movement history
-* ``avg inventory`` = mean of closing qty(d) over every day of the period
-  x current unit cost (a daily average is far more accurate than
-  (opening + closing) / 2 when stock is replenished during the period)
-* ``turnover``      = COGS / average inventory value
-* ``avg daily usage`` = units issued / days in period
-* ``days of stock``   = quantity on hand / average daily usage
+This service gathers data from the repositories and hands it to the pure
+calculations in :mod:`services.turnover` (formulas documented there and in
+docs/SRS.md, section CTQ). Report exports are audited as ``EXPORT``.
 
 Layer: services
 Author: Siddhi Baluja (240302054)
@@ -30,30 +22,21 @@ from models.product import Product
 from models.reports import DashboardStats, TurnoverRow
 from repositories.product_repository import ProductRepository
 from repositories.stock_transaction_repository import StockTransactionRepository
+from services import turnover
 from utils.csv_export import default_export_path, write_csv
 from utils.date_helpers import date_range, days_ago, days_between, period_bounds
 
 TURNOVER_COLUMNS: tuple[tuple[str, str], ...] = (
-    ("sku", "SKU"),
-    ("name", "Product"),
-    ("category_name", "Category"),
-    ("quantity_on_hand", "On hand"),
-    ("units_sold", "Units issued"),
-    ("cogs", "COGS"),
-    ("average_inventory_value", "Avg inventory value"),
-    ("turnover", "Turnover"),
-    ("avg_daily_usage", "Avg daily usage"),
-    ("days_of_stock", "Days of stock"),
+    ("sku", "SKU"), ("name", "Product"), ("category_name", "Category"),
+    ("quantity_on_hand", "On hand"), ("units_sold", "Units issued"), ("cogs", "COGS"),
+    ("average_inventory_value", "Avg inventory value"), ("turnover", "Turnover"),
+    ("avg_daily_usage", "Avg daily usage"), ("days_of_stock", "Days of stock"),
 )
 
 LOW_STOCK_COLUMNS: tuple[tuple[str, str], ...] = (
-    ("sku", "SKU"),
-    ("name", "Product"),
-    ("category_name", "Category"),
-    ("supplier_name", "Supplier"),
-    ("quantity_on_hand", "On hand"),
-    ("reorder_level", "Reorder level"),
-    ("shortfall", "Shortfall"),
+    ("sku", "SKU"), ("name", "Product"), ("category_name", "Category"),
+    ("supplier_name", "Supplier"), ("quantity_on_hand", "On hand"),
+    ("reorder_level", "Reorder level"), ("shortfall", "Shortfall"),
 )
 
 
@@ -72,9 +55,15 @@ class ReportService:
         self._transactions = transactions
         self._config = config
 
-    # -- periods ------------------------------------------------------------------
     def default_period(self, today: date | None = None) -> tuple[date, date]:
-        """The configured turnover window ending today."""
+        """The configured turnover window ending today.
+
+        Args:
+            today: Override for "today" (tests).
+
+        Returns:
+            ``(first day, last day)`` covering ``turnover_period_days`` days.
+        """
         end = today or date.today()
         return days_ago(self._config.get("inventory.turnover_period_days") - 1, end), end
 
@@ -89,66 +78,43 @@ class ReportService:
         Returns:
             One row per active product, highest turnover first.
         """
-        frame = self._turnover_frame(start, end)
-        if frame.empty:
-            return []
-        frame = frame.sort_values(["turnover", "cogs"], ascending=False)
-        return [TurnoverRow(**_clean_row(row)) for row in frame.to_dict("records")]
+        return turnover.to_rows(self._turnover_frame(start, end))
 
     def overall_turnover(self, start: date, end: date) -> float:
-        """Inventory turnover for the whole store over the period."""
-        frame = self._turnover_frame(start, end)
-        average = frame["average_inventory_value"].sum() if not frame.empty else 0.0
-        return round(float(frame["cogs"].sum() / average), 2) if average > 0 else 0.0
+        """Inventory turnover for the whole store.
+
+        Args:
+            start: First day of the period (inclusive).
+            end: Last day of the period (inclusive).
+
+        Returns:
+            Total COGS divided by total average inventory value.
+        """
+        return turnover.overall_turnover(self._turnover_frame(start, end))
 
     def _turnover_frame(self, start: date, end: date) -> pd.DataFrame:
-        """Build the per-product turnover table with pandas."""
+        """Fetch inputs and build the per-product turnover table."""
         products = self._products.list_all(active_only=True)
         if not products:
             return pd.DataFrame()
-        issues = self._transactions.issues_by_product(*period_bounds(start, end))
-        frame = pd.DataFrame([_product_record(p) for p in products])
-        ids = frame["product_id"]
-        frame["units_sold"] = ids.map(lambda i: issues.get(i, (0, 0.0))[0])
-        frame["cogs"] = ids.map(lambda i: issues.get(i, (0, 0.0))[1])
-        average_qty = self._average_quantities(frame.set_index("product_id")["quantity_on_hand"],
-                                               start, end)
-        frame["average_inventory_value"] = ids.map(average_qty) * frame["unit_cost"]
-        avg = frame["average_inventory_value"]
-        frame["turnover"] = (frame["cogs"] / avg.where(avg > 0)).fillna(0.0)
-        frame["avg_daily_usage"] = frame["units_sold"] / days_between(start, end)
-        usage = frame["avg_daily_usage"]
-        frame["days_of_stock"] = frame["quantity_on_hand"] / usage.where(usage > 0)
-        return frame.drop(columns=["unit_cost"])
-
-    def _average_quantities(self, on_hand: pd.Series, start: date, end: date) -> pd.Series:
-        """Mean daily closing quantity per product over ``start``..``end``.
-
-        Args:
-            on_hand: Current quantity indexed by product id.
-            start: First day of the period.
-            end: Last day of the period.
-
-        Returns:
-            Average quantity indexed by product id.
-        """
         period_start, period_end = period_bounds(start, end)
-        after_end = self._transactions.net_change_after(period_end)
-        closing_at_end = on_hand - on_hand.index.map(lambda i: after_end.get(i, 0))
-        deltas = pd.DataFrame(self._transactions.daily_net_change(period_start, period_end),
-                              columns=["product_id", "day", "delta"])
-        table = deltas.pivot_table(index="product_id", columns="day", values="delta",
-                                   aggfunc="sum", fill_value=0)
-        table.columns = pd.to_datetime(table.columns).date
-        table = table.reindex(index=on_hand.index, columns=date_range(start, end), fill_value=0)
-        # Movements later in the period than day d must be undone to get closing(d).
-        later = table.sum(axis=1).to_numpy()[:, None] - table.cumsum(axis=1).to_numpy()
-        daily_closing = closing_at_end.to_numpy()[:, None] - later
-        return pd.Series(daily_closing.mean(axis=1), index=on_hand.index)
+        on_hand = pd.Series({p.id: p.quantity_on_hand for p in products})
+        average_qty = turnover.average_daily_quantity(
+            on_hand, self._transactions.daily_net_change(period_start, period_end),
+            self._transactions.net_change_after(period_end), date_range(start, end))
+        issues = self._transactions.issues_by_product(period_start, period_end)
+        return turnover.turnover_table(products, issues, average_qty, days_between(start, end))
 
     # -- dashboard ----------------------------------------------------------------
     def dashboard_stats(self, today: date | None = None) -> DashboardStats:
-        """Headline numbers for the dashboard stat cards."""
+        """Headline numbers for the dashboard stat cards.
+
+        Args:
+            today: Override for "today" (tests).
+
+        Returns:
+            Product count, stock value, low-stock and stockout counts, turnover.
+        """
         summary = self._products.stock_summary()
         start, end = self.default_period(today)
         return DashboardStats(
@@ -161,33 +127,47 @@ class ReportService:
         )
 
     def value_by_category(self) -> list[tuple[str, float]]:
-        """Stock value at cost per category, largest first."""
+        """Stock value at cost per category.
+
+        Returns:
+            ``[(category, value), ...]`` largest first.
+        """
         return self._products.value_by_category()
 
     def daily_movements(self, today: date | None = None) -> pd.DataFrame:
         """Units in and out per day for the configured chart window.
 
+        Args:
+            today: Override for "today" (tests).
+
         Returns:
-            DataFrame indexed by date with integer columns ``IN`` and ``OUT``;
-            days without movements are filled with 0.
+            DataFrame indexed by date with integer columns ``IN`` and ``OUT``.
         """
         end = today or date.today()
         start = days_ago(self._config.get("inventory.chart_days") - 1, end)
         totals = self._transactions.daily_totals(*period_bounds(start, end))
-        frame = pd.DataFrame(totals, columns=["day", "type", "units"])
-        table = frame.pivot_table(index="day", columns="type", values="units",
-                                  aggfunc="sum", fill_value=0)
-        table.index = pd.to_datetime(table.index).date
-        days = date_range(start, end)
-        return table.reindex(index=days, columns=[TX_IN, TX_OUT], fill_value=0).astype(int)
+        return turnover.daily_movement_table(totals, date_range(start, end), [TX_IN, TX_OUT])
 
     def low_stock(self) -> list[Product]:
-        """Products at or below reorder level, most urgent first."""
+        """Products that need reordering.
+
+        Returns:
+            Active products at or below reorder level, most urgent first.
+        """
         return self._products.low_stock()
 
     # -- exports ------------------------------------------------------------------
     def export_turnover_csv(self, start: date, end: date, path: Path | None = None) -> Path:
-        """Export the turnover report and log ``EXPORT``."""
+        """Export the turnover report and log ``EXPORT``.
+
+        Args:
+            start: First day of the period.
+            end: Last day of the period.
+            path: Destination; defaults to a timestamped file in the export folder.
+
+        Returns:
+            The written file path.
+        """
         rows = [vars(row) for row in self.turnover_report(start, end)]
         target = path or self._export_path("turnover")
         write_csv(rows, TURNOVER_COLUMNS, target)
@@ -197,7 +177,14 @@ class ReportService:
         return target
 
     def export_low_stock_csv(self, path: Path | None = None) -> Path:
-        """Export the low-stock (reorder) list and log ``EXPORT``."""
+        """Export the reorder list and log ``EXPORT``.
+
+        Args:
+            path: Destination; defaults to a timestamped file in the export folder.
+
+        Returns:
+            The written file path.
+        """
         rows = [{**p.to_dict(), "shortfall": p.reorder_level - p.quantity_on_hand}
                 for p in self.low_stock()]
         target = path or self._export_path("low_stock")
@@ -208,31 +195,3 @@ class ReportService:
     def _export_path(self, prefix: str) -> Path:
         """Timestamped path inside the configured export folder."""
         return default_export_path(self._config.resolve_path("paths.export_dir"), prefix)
-
-
-def _product_record(product: Product) -> dict[str, object]:
-    """The product columns the turnover table starts from."""
-    return {
-        "product_id": product.id,
-        "sku": product.sku,
-        "name": product.name,
-        "category_name": product.category_name,
-        "quantity_on_hand": product.quantity_on_hand,
-        "unit_cost": product.unit_cost,
-    }
-
-
-def _clean_row(row: dict[str, object]) -> dict[str, object]:
-    """Round money/ratios and turn NaN days-of-stock into ``None``."""
-    days = row["days_of_stock"]
-    return {
-        **row,
-        "product_id": int(row["product_id"]),
-        "quantity_on_hand": int(row["quantity_on_hand"]),
-        "units_sold": int(row["units_sold"]),
-        "cogs": round(float(row["cogs"]), 2),
-        "average_inventory_value": round(float(row["average_inventory_value"]), 2),
-        "turnover": round(float(row["turnover"]), 2),
-        "avg_daily_usage": round(float(row["avg_daily_usage"]), 2),
-        "days_of_stock": None if pd.isna(days) else round(float(days), 1),
-    }

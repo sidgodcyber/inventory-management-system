@@ -33,6 +33,7 @@ from core.exceptions import NotFoundError, StockError, ValidationError
 from core.logger import get_logger, log_activity
 from core.settings_manager import SettingsManager
 from models.common import ListQuery, Page
+from models.movement import MovementResult
 from models.filters import TransactionFilter
 from models.product import Product
 from models.stock_transaction import StockTransaction
@@ -44,37 +45,15 @@ from utils.validators import Validator
 
 _ACTIONS = {TX_IN: ACTION_STOCK_IN, TX_OUT: ACTION_STOCK_OUT, TX_ADJUST: ACTION_ADJUST}
 
+__all__ = ["EXPORT_COLUMNS", "MovementResult", "StockService"]
+
 EXPORT_COLUMNS: tuple[tuple[str, str], ...] = (
-    ("created_at", "Date"),
-    ("product_sku", "SKU"),
-    ("product_name", "Product"),
-    ("type", "Type"),
-    ("quantity", "Quantity"),
-    ("unit_cost", "Unit cost"),
-    ("value", "Value"),
-    ("reference_note", "Reference / note"),
-    ("performed_by", "Performed by"),
+    ("created_at", "Date"), ("product_sku", "SKU"), ("product_name", "Product"),
+    ("type", "Type"), ("quantity", "Quantity"), ("unit_cost", "Unit cost"), ("value", "Value"),
+    ("reference_note", "Reference / note"), ("performed_by", "Performed by"),
 )
 
 _log = get_logger(__name__)
-
-
-@dataclass
-class MovementResult:
-    """Outcome of a stock movement.
-
-    Attributes:
-        transaction: The stored movement.
-        product: The product after the movement.
-    """
-
-    transaction: StockTransaction
-    product: Product
-
-    @property
-    def low_stock_alert(self) -> bool:
-        """True when the movement left the product at or below reorder level."""
-        return self.product.is_low_stock
 
 
 @dataclass
@@ -147,6 +126,15 @@ class StockService:
                   occurred_at: datetime | None = None) -> MovementResult:
         """Issue stock (sale or consumption).
 
+        Args:
+            product_id: Product being issued.
+            quantity: Units issued (whole number >= 1, at most the stock on hand).
+            note: Reference such as an invoice number.
+            occurred_at: Back-dated time (imports and seeding); defaults to now.
+
+        Returns:
+            The stored movement and updated product.
+
         Raises:
             ValidationError: If the quantity is invalid.
             StockError: If it exceeds stock on hand or the product is inactive.
@@ -185,11 +173,23 @@ class StockService:
 
     # -- history ----------------------------------------------------------------
     def history(self, filters: TransactionFilter, query: ListQuery) -> Page[StockTransaction]:
-        """One page of the filtered movement history."""
+        """One page of the filtered movement history.
+
+        Args:
+            filters: Product, type and date-range filters.
+            query: Search text, sort and page.
+
+        Returns:
+            The requested page of movements.
+        """
         return self._transactions.find(filters, query)
 
     def export_csv(self, filters: TransactionFilter, path: Path | None = None) -> Path:
         """Export the filtered history to CSV and log ``EXPORT``.
+
+        Args:
+            filters: Same filters as the history screen.
+            path: Destination; defaults to a timestamped file in the export folder.
 
         Returns:
             The written file path.

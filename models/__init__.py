@@ -8,6 +8,7 @@ from models.activity_log import ActivityLog
 from models.category import Category
 from models.common import ListQuery, Page
 from models.filters import ActivityFilter, TransactionFilter
+from models.movement import MovementResult
 from models.product import Product
 from models.reports import DashboardStats, TurnoverRow
 from models.setting import Setting
@@ -20,6 +21,7 @@ __all__ = [
     "Category",
     "DashboardStats",
     "ListQuery",
+    "MovementResult",
     "Page",
     "Product",
     "Setting",
