@@ -28,9 +28,11 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+# Application code (judged for QO5 and QO6) and developer tooling (QO5 only).
 SOURCE_DIRS: tuple[str, ...] = ("config", "core", "models", "repositories", "services", "ui",
-                                "utils", "scripts")
+                                "utils")
 SOURCE_FILES: tuple[str, ...] = ("main.py",)
+TOOLING_DIRS: tuple[str, ...] = ("scripts",)
 REPORT_PATH = PROJECT_ROOT / "docs" / "quality_report.md"
 START_MARK = "<!-- DOC_COVERAGE:START -->"
 END_MARK = "<!-- DOC_COVERAGE:END -->"
@@ -73,9 +75,14 @@ class FileCoverage:
 
 
 def source_files(root: Path = PROJECT_ROOT) -> list[Path]:
-    """Every Python file that belongs to the application."""
+    """Every Python file that belongs to the application (packages + ``main.py``)."""
     files = [p for folder in SOURCE_DIRS for p in sorted((root / folder).rglob("*.py"))]
     return files + [root / name for name in SOURCE_FILES if (root / name).exists()]
+
+
+def tooling_files(root: Path = PROJECT_ROOT) -> list[Path]:
+    """Developer scripts: documented like the app, but not part of the shipped system."""
+    return [p for folder in TOOLING_DIRS for p in sorted((root / folder).rglob("*.py"))]
 
 
 def _fully_annotated(node: ast.FunctionDef | ast.AsyncFunctionDef) -> bool:
@@ -174,7 +181,7 @@ def write_section(section: str, report: Path = REPORT_PATH) -> None:
 
 def run() -> tuple[list[FileCoverage], FileCoverage]:
     """Analyse every source file and return per-file results and totals."""
-    results = [analyse(path) for path in source_files()]
+    results = [analyse(path) for path in source_files() + tooling_files()]
     return results, totals(results)
 
 

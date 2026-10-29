@@ -86,14 +86,16 @@ def overall_cc(metrics: list[FileMetrics]) -> float:
 
 def run_tests() -> str:
     """Run pytest quietly and return its summary line."""
-    result = subprocess.run([sys.executable, "-m", "pytest", "-q"], cwd=PROJECT_ROOT,
+    result = subprocess.run([sys.executable, "-m", "pytest", "-q", "-o", "addopts="],
+                            cwd=PROJECT_ROOT,
                             capture_output=True, text=True, encoding="utf-8")
     lines = [line for line in result.stdout.splitlines() if line.strip()]
     summary = lines[-1] if lines else "pytest produced no output"
     return re.sub(r"=+", "", summary).strip()
 
 
-def render(metrics: list[FileMetrics], test_summary: str | None) -> str:
+def render(metrics: list[FileMetrics], tooling: list[FileMetrics],
+           test_summary: str | None) -> str:
     """Whole report as Markdown (doc-coverage section appended by the caller)."""
     avg_cc = overall_cc(metrics)
     avg_mi = sum(m.mi for m in metrics) / len(metrics)
@@ -104,6 +106,10 @@ def render(metrics: list[FileMetrics], test_summary: str | None) -> str:
         "",
         f"Generated {datetime.now():%Y-%m-%d %H:%M} by `scripts/quality_report.py` "
         f"(radon CC + MI, docstring coverage). **Do not edit by hand.**",
+        "",
+        "Scope: QO6 is judged on the application (`config`, `core`, `models`, "
+        "`repositories`, `services`, `ui`, `utils`, `main.py`). Developer tooling in "
+        "`scripts/` is listed for information; QO5 covers both.",
         "",
         "## Summary",
         "",
@@ -125,8 +131,9 @@ def render(metrics: list[FileMetrics], test_summary: str | None) -> str:
     lines += ["", f"Files analysed: {len(metrics)} · functions/methods: "
                   f"{sum(m.functions for m in metrics)} · lines: {sum(m.lines for m in metrics):,}",
               ""]
-    lines += _file_table(metrics)
+    lines += _file_table(metrics, "## QO6: Complexity and maintainability per application file")
     lines += _hotspots(metrics)
+    lines += _file_table(tooling, "## Developer tooling (informational, not judged)")
     return "\n".join(lines)
 
 
@@ -135,9 +142,9 @@ def _verdict(ok: bool) -> str:
     return "✅ PASS" if ok else "❌ FAIL"
 
 
-def _file_table(metrics: list[FileMetrics]) -> list[str]:
-    """Per-file radon table."""
-    lines = ["## QO6: Complexity and maintainability per file", "",
+def _file_table(metrics: list[FileMetrics], heading: str) -> list[str]:
+    """Per-file radon table under ``heading``."""
+    lines = [heading, "",
              "| File | Lines | Funcs | Avg CC | Worst function (CC) | MI | MI rank |",
              "|------|------:|------:|-------:|---------------------|---:|:-------:|"]
     for m in metrics:
@@ -170,7 +177,8 @@ def main(argv: list[str] | None = None) -> int:
     tests = run_tests() if args.tests else None
     results, doc_total = doc_coverage.run()
     REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    REPORT_PATH.write_text(render(metrics, tests) + "\n", encoding="utf-8")
+    tooling = [measure(path) for path in doc_coverage.tooling_files()]
+    REPORT_PATH.write_text(render(metrics, tooling, tests) + "\n", encoding="utf-8")
     doc_coverage.write_section(doc_coverage.render(results))
     avg_cc = overall_cc(metrics)
     min_mi = min(m.mi for m in metrics)
