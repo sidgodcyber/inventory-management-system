@@ -25,6 +25,7 @@ from ui.views.categories import CategoriesView
 from ui.views.dashboard import DashboardView
 from ui.views.placeholder import PlaceholderView
 from ui.views.products import ProductsView
+from ui.views.settings import SettingsView
 from ui.views.stock import StockView
 from ui.views.suppliers import SuppliersView
 
@@ -47,6 +48,7 @@ VIEW_CLASSES: dict[str, type[BaseView]] = {
     "categories": CategoriesView,
     "suppliers": SuppliersView,
     "stock": StockView,
+    "settings": SettingsView,
 }
 
 
