@@ -11,12 +11,12 @@ Author: Siddhi Baluja (240302054)
 from __future__ import annotations
 
 from collections.abc import Callable, Sequence
-from datetime import date, datetime
+from datetime import date
 from typing import Any, TypeVar
 
-from core.constants import DB_TIMESTAMP_FORMAT
 from core.database import Database
 from models.common import ListQuery, Page
+from utils.date_helpers import end_of_day, now_timestamp, start_of_day
 
 T = TypeVar("T")
 
@@ -39,7 +39,7 @@ class BaseRepository:
     @staticmethod
     def now() -> str:
         """Current local time in database timestamp format."""
-        return datetime.now().strftime(DB_TIMESTAMP_FORMAT)
+        return now_timestamp()
 
     @staticmethod
     def like(text: str) -> str:
@@ -54,12 +54,12 @@ class BaseRepository:
     @staticmethod
     def day_start(day: date) -> str:
         """Timestamp for the first second of ``day``."""
-        return f"{day.isoformat()} 00:00:00"
+        return start_of_day(day)
 
     @staticmethod
     def day_end(day: date) -> str:
         """Timestamp for the last second of ``day``."""
-        return f"{day.isoformat()} 23:59:59"
+        return end_of_day(day)
 
     def order_by(self, query: ListQuery) -> str:
         """Build a safe ``ORDER BY`` clause from the whitelist."""
