@@ -1,6 +1,6 @@
 # Quality report: maintainability evidence (Q11)
 
-Generated 2026-10-30 01:15 by `scripts/quality_report.py` (radon CC + MI, docstring coverage). **Do not edit by hand.**
+Generated 2026-10-30 01:19 by `scripts/quality_report.py` (radon CC + MI, docstring coverage). **Do not edit by hand.**
 
 Scope: QO6 is judged on the application (`config`, `core`, `models`, `repositories`, `services`, `ui`, `utils`, `main.py`). Developer tooling in `scripts/` is listed for information; QO5 covers both.
 
@@ -11,7 +11,7 @@ Scope: QO6 is judged on the application (`config`, `core`, `models`, `repositori
 | QO6 | Average cyclomatic complexity | ≤ 5 (grade A) | 1.91 (grade A) | ✅ PASS |
 | QO6 | Maintainability index, every file | ≥ 65 | min 65.4, avg 81.9 | ✅ PASS |
 | QO5 | Docstrings + type hints | 100% | 100.0% (lowest category) | ✅ PASS |
-| QO7 | pytest (repositories, services, utils, config, core) | all pass | 154 passed in 19.93s | ✅ PASS |
+| QO7 | pytest (repositories, services, utils, config, core) | all pass | 154 passed in 18.93s | ✅ PASS |
 
 Files analysed: 93 · functions/methods: 529 · lines: 8,962
 
