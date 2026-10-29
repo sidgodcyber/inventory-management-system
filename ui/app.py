@@ -22,6 +22,7 @@ from ui.components.status_bar import StatusBar
 from ui.theme import Theme
 from ui.views.base_view import BaseView
 from ui.views.categories import CategoriesView
+from ui.views.dashboard import DashboardView
 from ui.views.placeholder import PlaceholderView
 from ui.views.products import ProductsView
 from ui.views.stock import StockView
@@ -41,6 +42,7 @@ NAVIGATION: tuple[tuple[str, str], ...] = (
 )
 
 VIEW_CLASSES: dict[str, type[BaseView]] = {
+    "dashboard": DashboardView,
     "products": ProductsView,
     "categories": CategoriesView,
     "suppliers": SuppliersView,
