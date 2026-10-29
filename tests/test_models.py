@@ -16,6 +16,14 @@ def test_product_low_stock_and_value() -> None:
     assert product.stock_value == 12.5
 
 
+def test_product_status_text() -> None:
+    """Status reflects activity, stockout and low-stock in priority order."""
+    assert Product(is_active=False).status == "Inactive"
+    assert Product(quantity_on_hand=0, reorder_level=5).status == "Stockout"
+    assert Product(quantity_on_hand=3, reorder_level=5).status == "Low stock"
+    assert Product(quantity_on_hand=9, reorder_level=5).status == "OK"
+
+
 def test_product_from_row_converts_flags() -> None:
     """SQLite 0/1 becomes a bool and NULL supplier name becomes ''."""
     product = Product.from_row({"id": 1, "is_active": 0, "supplier_name": None, "extra": 1})

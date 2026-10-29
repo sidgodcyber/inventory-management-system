@@ -203,7 +203,7 @@ class ProductService:
         """Export the product list to CSV and log ``EXPORT``."""
         products = self._products.list_all(active_only=not include_inactive)
         rows = [{**p.to_dict(), "stock_value": round(p.stock_value, 2),
-                 "status": _status(p)} for p in products]
+                 "status": p.status} for p in products]
         target = path or default_export_path(self._config.resolve_path("paths.export_dir"),
                                              "products")
         write_csv(rows, EXPORT_COLUMNS, target)
@@ -263,11 +263,3 @@ class ProductService:
                     "each sale will lose money."]
         return []
 
-
-def _status(product: Product) -> str:
-    """Human-readable stock status used in exports."""
-    if not product.is_active:
-        return "Inactive"
-    if product.is_out_of_stock:
-        return "Stockout"
-    return "Low stock" if product.is_low_stock else "OK"

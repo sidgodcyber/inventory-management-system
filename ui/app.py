@@ -21,7 +21,10 @@ from ui.components.messages import show_error
 from ui.components.status_bar import StatusBar
 from ui.theme import Theme
 from ui.views.base_view import BaseView
+from ui.views.categories import CategoriesView
 from ui.views.placeholder import PlaceholderView
+from ui.views.products import ProductsView
+from ui.views.suppliers import SuppliersView
 
 # Sidebar entries: (key, label). The view class for each key is in VIEW_CLASSES.
 NAVIGATION: tuple[tuple[str, str], ...] = (
@@ -36,7 +39,11 @@ NAVIGATION: tuple[tuple[str, str], ...] = (
     ("about", "About"),
 )
 
-VIEW_CLASSES: dict[str, type[BaseView]] = {}
+VIEW_CLASSES: dict[str, type[BaseView]] = {
+    "products": ProductsView,
+    "categories": CategoriesView,
+    "suppliers": SuppliersView,
+}
 
 
 class App(ctk.CTk):
@@ -178,7 +185,12 @@ class App(ctk.CTk):
         self.services.activity.record_error("UI callback", val)
         show_error(self, "handling that action")
 
+    def destroy(self) -> None:
+        """Detach from settings notifications, then destroy the window."""
+        self.services.settings.unsubscribe(self._on_setting_changed)
+        super().destroy()
+
     def _on_close(self) -> None:
         """Close the database cleanly and exit."""
-        self.services.db.close()
         self.destroy()
+        self.services.db.close()

@@ -83,6 +83,15 @@ class Product:
         return self.quantity_on_hand == 0
 
     @property
+    def status(self) -> str:
+        """Human-readable stock status: Inactive, Stockout, Low stock or OK."""
+        if not self.is_active:
+            return "Inactive"
+        if self.is_out_of_stock:
+            return "Stockout"
+        return "Low stock" if self.is_low_stock else "OK"
+
+    @property
     def stock_value(self) -> float:
         """Inventory value at cost: quantity x unit cost."""
         return self.quantity_on_hand * self.unit_cost
