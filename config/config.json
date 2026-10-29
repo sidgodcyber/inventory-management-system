@@ -1,0 +1,79 @@
+{
+  "app": {
+    "name": "Inventory Management System",
+    "short_name": "IMS",
+    "version": "1.0.0",
+    "author": "Siddhi Baluja",
+    "roll_no": "240302054",
+    "course": "BBAT104 - Fundamentals of TQM",
+    "quality_goal": "Q11 - Improve Maintainability"
+  },
+  "paths": {
+    "database": "data/inventory.db",
+    "log_file": "logs/app.log",
+    "export_dir": "exports"
+  },
+  "logging": {
+    "level": "INFO",
+    "max_bytes": 1048576,
+    "backup_count": 5,
+    "format": "%(asctime)s | %(levelname)-8s | %(name)s | %(message)s"
+  },
+  "ui": {
+    "appearance_mode": "system",
+    "color_theme": "blue",
+    "window_width": 1320,
+    "window_height": 800,
+    "min_width": 1200,
+    "min_height": 720,
+    "sidebar_width": 210,
+    "font_family": "Segoe UI",
+    "font_size": 13,
+    "heading_size": 20,
+    "toast_ms": 3000,
+    "palette": {
+      "danger": "#D64545",
+      "danger_row_light": "#FBE3E3",
+      "danger_row_dark": "#5A2626",
+      "warning": "#E0A100",
+      "success": "#2E9E5B",
+      "accent": "#3B7DD8",
+      "muted": "#8A8F98",
+      "chart_in": "#2E9E5B",
+      "chart_out": "#D64545"
+    }
+  },
+  "inventory": {
+    "currency_symbol": "₹",
+    "default_reorder_level": 10,
+    "turnover_period_days": 90,
+    "chart_days": 30,
+    "default_unit": "pcs",
+    "units": ["pcs", "box", "kg", "litre", "pack", "dozen", "metre"]
+  },
+  "display": {
+    "page_size": 15,
+    "date_format": "%Y-%m-%d"
+  },
+  "activity_log": {
+    "retention_days": 180
+  },
+  "operator": {
+    "name": "Admin",
+    "role": "Admin",
+    "roles": ["Admin", "Store Manager", "Store Staff"]
+  },
+  "validation": {
+    "page_size_min": 5,
+    "page_size_max": 100,
+    "retention_days_min": 1,
+    "retention_days_max": 3650,
+    "reorder_level_max": 100000,
+    "currency_max_length": 4,
+    "text_max_length": 120,
+    "notes_max_length": 500,
+    "sku_pattern": "^[A-Z0-9][A-Z0-9-]{1,19}$",
+    "phone_pattern": "^\\+?[0-9][0-9 \\-]{6,14}$",
+    "email_pattern": "^[^@\\s]+@[^@\\s]+\\.[A-Za-z]{2,}$"
+  }
+}
