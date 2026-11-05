@@ -1,7 +1,7 @@
 """Tests for :mod:`config.config_loader` (QO2: zero hard-coded configuration).
 
 Layer: tests
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations
@@ -35,7 +35,7 @@ def _default_data() -> dict:
 def test_shipped_config_is_valid() -> None:
     """The committed config.json must pass validation."""
     config = load_config()
-    assert config.get("app.roll_no") == "240302054"
+    assert config.get("app.name") == "Inventory Management System"
     assert config.get("display.page_size") > 0
 
 

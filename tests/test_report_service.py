@@ -9,7 +9,7 @@ Scenario for product A (unit cost 10):
   COGS 400, turnover 0.48
 
 Layer: tests
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

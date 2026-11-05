@@ -1,7 +1,7 @@
 """Form field definitions and the widget factory used by :mod:`form_dialog`.
 
 Layer: ui/components
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

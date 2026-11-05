@@ -6,7 +6,7 @@ refuses negative stock and writes the audit entry. The history below can be
 filtered by product, type and date range, sorted, paged and exported.
 
 Layer: ui/views
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

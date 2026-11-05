@@ -4,10 +4,7 @@
     "short_name": "IMS",
     "tagline": "Inventory Management",
     "version": "1.0.0",
-    "author": "Siddhi Baluja",
-    "roll_no": "240302054",
-    "course": "BBAT104 - Fundamentals of TQM",
-    "quality_goal": "Q11 - Improve Maintainability"
+    "author": "Siddhi Baluja"
   },
   "paths": {
     "database": "data/inventory.db",

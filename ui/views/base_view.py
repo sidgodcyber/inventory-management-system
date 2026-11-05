@@ -6,7 +6,7 @@ record them (action ``ERROR``), and show a friendly message, so a raw
 traceback can never reach the operator.
 
 Layer: ui/views
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

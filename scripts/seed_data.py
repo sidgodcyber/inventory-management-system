@@ -1,4 +1,4 @@
-"""Seed the database with realistic sample data for demos and TQM analysis.
+"""Seed the database with realistic sample data for demos and quality analysis.
 
 Creates 6 categories, 5 suppliers and 40 products, then simulates 90 days of
 store operation: daily customer demand (stock out), reorders arriving after a
@@ -16,7 +16,7 @@ Usage::
     python scripts/seed_data.py --reset    # delete the database and re-seed
 
 Layer: scripts (composition context, like main.py)
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations
@@ -300,7 +300,7 @@ def main(argv: list[str] | None = None) -> int:
     """
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--reset", action="store_true", help="delete and recreate the database")
-    parser.add_argument("--seed", type=int, default=240302054, help="random seed")
+    parser.add_argument("--seed", type=int, default=2026, help="random seed")
     args = parser.parse_args(argv)
     sys.stdout.reconfigure(encoding="utf-8")
     config = load_config()

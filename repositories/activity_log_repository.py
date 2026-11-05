@@ -3,10 +3,10 @@
 Implements :class:`core.logger.ActivitySink`, so it is the sink that
 ``log_activity`` writes to. It also provides the filtered queries, CSV export
 rows, retention purge and per-action counts that feed the defect checksheet and
-Pareto analysis in later TQM reviews.
+Pareto analysis.
 
 Layer: repositories
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

@@ -4,7 +4,7 @@ The panel only collects input and calls :class:`services.stock_service.StockServ
 every rule (no negative stock, adjust needs a reason) is enforced there.
 
 Layer: ui/views
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

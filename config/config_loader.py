@@ -6,7 +6,7 @@ broken or incomplete file fails fast with a :class:`ConfigError` listing
 *every* problem, so the user can fix the file in one go.
 
 Layer: config (usable by every layer)
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

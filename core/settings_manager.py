@@ -11,7 +11,7 @@ Persistence goes through an injected :class:`SettingsStore` (implemented by
 ``SettingsRepository``), which keeps SQL out of the core layer.
 
 Layer: core (used by services; listeners let the UI react to changes)
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

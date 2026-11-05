@@ -10,7 +10,7 @@ repository is installed as the sink behind ``core.logger.log_activity``, and
 the settings repository is injected into ``SettingsManager``.
 
 Layer: services (composition root)
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

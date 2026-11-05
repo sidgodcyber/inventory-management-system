@@ -1,7 +1,7 @@
 """Data access for ``stock_transactions`` plus the queries behind turnover maths.
 
 Layer: repositories
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

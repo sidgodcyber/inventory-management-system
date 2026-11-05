@@ -4,7 +4,7 @@ Separated from :mod:`ui.views.products` so the screen deals with listing and
 filtering while this module knows how a product maps to and from the form.
 
 Layer: ui/views
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

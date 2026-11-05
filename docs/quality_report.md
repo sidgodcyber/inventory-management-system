@@ -1,6 +1,6 @@
-# Quality report: maintainability evidence (Q11)
+# Quality report: maintainability evidence
 
-Generated 2026-11-05 18:23 by `scripts/quality_report.py` (radon CC + MI, docstring coverage). **Do not edit by hand.**
+Generated 2026-11-05 18:31 by `scripts/quality_report.py` (radon CC + MI, docstring coverage). **Do not edit by hand.**
 
 Scope: QO6 is judged on the application (`config`, `core`, `models`, `repositories`, `services`, `ui`, `utils`, `main.py`). Developer tooling in `scripts/` is listed for information; QO5 covers both.
 
@@ -11,9 +11,9 @@ Scope: QO6 is judged on the application (`config`, `core`, `models`, `repositori
 | QO6 | Average cyclomatic complexity | ≤ 5 (grade A) | 1.95 (grade A) | ✅ PASS |
 | QO6 | Maintainability index, every file | ≥ 65 | min 65.2, avg 81.4 | ✅ PASS |
 | QO5 | Docstrings + type hints | 100% | 100.0% (lowest category) | ✅ PASS |
-| QO7 | pytest (repositories, services, utils, config, core) | all pass | 180 passed in 29.92s | ✅ PASS |
+| QO7 | pytest (repositories, services, utils, config, core) | all pass | 180 passed in 33.02s | ✅ PASS |
 
-Files analysed: 104 · functions/methods: 591 · lines: 10,217
+Files analysed: 104 · functions/methods: 591 · lines: 10,212
 
 ## QO6: Complexity and maintainability per application file
 
@@ -21,7 +21,7 @@ Files analysed: 104 · functions/methods: 591 · lines: 10,217
 |------|------:|------:|-------:|---------------------|---:|:-------:|
 | `config/__init__.py` | 5 | 0 | 0.00 | - (0) | 100.0 | A |
 | `config/config_loader.py` | 139 | 8 | 1.88 | _read_json (3) | 71.9 | A |
-| `config/schema.py` | 113 | 0 | 0.00 | - (0) | 89.9 | A |
+| `config/schema.py` | 110 | 0 | 0.00 | - (0) | 90.2 | A |
 | `config/validation.py` | 128 | 7 | 4.86 | value_errors (8) | 69.0 | A |
 | `core/__init__.py` | 5 | 0 | 0.00 | - (0) | 100.0 | A |
 | `core/constants.py` | 76 | 0 | 0.00 | - (0) | 100.0 | A |
@@ -65,7 +65,7 @@ Files analysed: 104 · functions/methods: 591 · lines: 10,217
 | `services/settings_service.py` | 165 | 16 | 1.44 | SettingsService.save (5) | 69.0 | A |
 | `services/stock_service.py` | 249 | 9 | 2.22 | StockService._apply (4) | 65.4 | A |
 | `services/supplier_service.py` | 129 | 9 | 1.44 | _audit (2) | 81.3 | A |
-| `services/system_service.py` | 132 | 7 | 1.57 | _describe (3) | 76.9 | A |
+| `services/system_service.py` | 130 | 7 | 1.57 | _describe (3) | 77.1 | A |
 | `services/turnover.py` | 149 | 7 | 1.86 | to_rows (3) | 72.4 | A |
 | `services/user_service.py` | 170 | 8 | 2.50 | UserService.set_active (6) | 68.4 | A |
 | `ui/__init__.py` | 5 | 0 | 0.00 | - (0) | 100.0 | A |

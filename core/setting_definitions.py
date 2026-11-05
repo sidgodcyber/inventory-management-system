@@ -5,7 +5,7 @@ key that supplies its default. Adding a new runtime setting is a one-line
 change here; the Settings screen and validation pick it up automatically.
 
 Layer: core
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

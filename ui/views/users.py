@@ -4,7 +4,7 @@ Accounts are never deleted, so the audit trail always resolves to a real
 user; deactivated accounts simply cannot sign in.
 
 Layer: ui/views
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

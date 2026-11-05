@@ -17,7 +17,7 @@ Usage::
     python scripts/doc_coverage.py
 
 Layer: scripts (tooling, not shipped in the app)
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

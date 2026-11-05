@@ -5,7 +5,7 @@ can be read, tested and changed without touching the product lifecycle
 (create, update, delete, export).
 
 Layer: services
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

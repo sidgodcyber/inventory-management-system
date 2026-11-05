@@ -1,7 +1,7 @@
 """Turnover report table: sortable rows with stockout and run-out highlighting.
 
 Layer: ui/views
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

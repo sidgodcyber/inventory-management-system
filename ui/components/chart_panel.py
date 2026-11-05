@@ -4,7 +4,7 @@ The panel owns one figure and redraws it through a callback, applying the
 theme's light/dark chart colours so charts follow the appearance setting.
 
 Layer: ui/components
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

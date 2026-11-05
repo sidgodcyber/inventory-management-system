@@ -5,7 +5,7 @@ columns, form fields and which service methods to call. The toolbar,
 dialogs, confirmation, error handling and toasts live here once.
 
 Layer: ui/views
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

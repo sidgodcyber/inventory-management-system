@@ -5,7 +5,7 @@ format) as an argument, taken by the caller from the runtime settings, so
 none of them hard-codes a locale.
 
 Layer: utils (stateless helpers)
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

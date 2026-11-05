@@ -4,7 +4,7 @@ Every problem is collected before raising, so a broken ``config.json`` is
 reported in full and the user can fix it in a single edit.
 
 Layer: config
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

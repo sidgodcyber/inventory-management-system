@@ -6,7 +6,7 @@ append a new version to :data:`MIGRATIONS`; ``Database.initialize`` upgrades
 existing databases on the next start.
 
 Layer: core
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

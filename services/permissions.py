@@ -5,7 +5,7 @@ restricted read, so the rules hold even if a screen forgets to hide a button.
 The UI uses the same names to decide which screens and buttons to show.
 
 Layer: services
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

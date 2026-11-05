@@ -1,12 +1,12 @@
 """Products screen: CRUD plus low-stock highlighting, filters, restore and export.
 
 Rows at or below their reorder level are shaded red (stockouts darker), so
-stockout risk is visible at a glance. That supports the baseline TQM goal
-of eliminating stockouts. The form itself is defined in
+stockout risk is visible at a glance. That supports the core goal of
+eliminating stockouts. The form itself is defined in
 :mod:`ui.views.product_form`.
 
 Layer: ui/views
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

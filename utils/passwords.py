@@ -6,7 +6,7 @@ later still lets existing passwords verify. Plain passwords are never stored
 or logged.
 
 Layer: utils (stateless helpers)
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

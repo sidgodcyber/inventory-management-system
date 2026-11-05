@@ -5,7 +5,7 @@ adds the config-driven rules (lengths, SKU/email/phone patterns) on top. Date
 parsing lives with the other date helpers in :mod:`utils.date_helpers`.
 
 Layer: utils (stateless helpers)
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

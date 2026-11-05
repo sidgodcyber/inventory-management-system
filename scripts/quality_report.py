@@ -16,7 +16,7 @@ Usage::
     python scripts/quality_report.py --tests    # also run pytest and record the result
 
 Layer: scripts (tooling, not shipped in the app)
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations
@@ -102,7 +102,7 @@ def render(metrics: list[FileMetrics], tooling: list[FileMetrics],
     failing_mi = [m for m in metrics if not m.mi_ok]
     cc_ok, mi_ok = avg_cc <= CC_TARGET, not failing_mi
     lines = [
-        "# Quality report: maintainability evidence (Q11)",
+        "# Quality report: maintainability evidence",
         "",
         f"Generated {datetime.now():%Y-%m-%d %H:%M} by `scripts/quality_report.py` "
         f"(radon CC + MI, docstring coverage). **Do not edit by hand.**",

@@ -1,6 +1,6 @@
-# TQM analysis templates
+# Quality analysis templates
 
-These files are filled in during Reviews 3 and 4.
+Blank templates for analysing the stock process and its defects.
 
 | File | Tool | Main data source |
 |---|---|---|

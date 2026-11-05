@@ -4,7 +4,7 @@ Adding a screen is a two-line change here; the main window, sidebar and
 navigation pick it up automatically.
 
 Layer: ui
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

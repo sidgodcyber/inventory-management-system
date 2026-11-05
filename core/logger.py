@@ -12,7 +12,7 @@ does not write SQL itself. It forwards to an injected :class:`ActivitySink`
 (implemented by ``ActivityLogRepository``), so core never imports upward.
 
 Layer: core (usable by every layer)
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

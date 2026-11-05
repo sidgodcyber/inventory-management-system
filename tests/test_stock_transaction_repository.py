@@ -1,7 +1,7 @@
 """Tests for :mod:`repositories.stock_transaction_repository`.
 
 Layer: tests
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

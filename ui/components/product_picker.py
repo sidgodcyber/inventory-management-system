@@ -5,7 +5,7 @@ with a low-stock warning, so the operator sees the effect before recording a
 movement.
 
 Layer: ui/components
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

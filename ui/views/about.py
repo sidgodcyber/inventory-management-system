@@ -1,11 +1,11 @@
-"""About / Architecture screen: shows the modular structure live (Q11 feature 1).
+"""About / Architecture screen: shows the modular structure live.
 
 The module list is discovered at runtime from each file's header docstring
 (``SystemService.modules``), so this screen proves the layering and
 documentation of the actual code base, not a hand-maintained copy.
 
 Layer: ui/views
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations
@@ -17,8 +17,8 @@ import customtkinter as ctk
 from ui.components.data_table import Column, DataTable
 from ui.views.base_view import BaseView
 
-# Where each Q11 maintainability feature lives in the code base.
-Q11_FEATURES: tuple[tuple[str, str], ...] = (
+# Where each maintainability feature lives in the code base.
+MAINTAINABILITY_FEATURES: tuple[tuple[str, str], ...] = (
     ("1. Modular Structure", "Layered packages ui → services → repositories → core; "
                              "this screen lists every module."),
     ("2. Config Files", "config/config.json validated by config/config_loader.py at start-up."),
@@ -35,7 +35,7 @@ class AboutView(BaseView):
     """Application identity, architecture diagram, rules and module inventory."""
 
     title = "About / Architecture"
-    subtitle = "How the system is organised for maintainability (TQM quality goal Q11)."
+    subtitle = "How the system is organised for maintainability."
 
     def build(self) -> None:
         """Two tabs: overview and module inventory."""
@@ -45,13 +45,13 @@ class AboutView(BaseView):
         self._build_modules(tabs.add("Modules"))
 
     def _build_overview(self, tab: Any) -> None:
-        """Identity facts and Q11 map on the left, diagram and rules on the right."""
+        """Identity facts and feature map on the left, diagram and rules on the right."""
         tab.grid_columnconfigure((0, 1), weight=1, uniform="about")
         tab.grid_rowconfigure(0, weight=1)
         left = ctk.CTkScrollableFrame(tab, fg_color="transparent")
         left.grid(row=0, column=0, sticky="nsew", padx=(0, 8))
         self._fact_rows(left, "Application", self.services.system.app_info().items())
-        self._fact_rows(left, "Q11 maintainability features", Q11_FEATURES)
+        self._fact_rows(left, "Maintainability features", MAINTAINABILITY_FEATURES)
         right = ctk.CTkFrame(tab, fg_color="transparent")
         right.grid(row=0, column=1, sticky="nsew", padx=(8, 0))
         self._section(right, "Layer diagram")

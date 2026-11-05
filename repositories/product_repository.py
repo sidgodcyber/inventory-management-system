@@ -1,7 +1,7 @@
 """Data access for the ``products`` table, including stock-health queries.
 
 Layer: repositories
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

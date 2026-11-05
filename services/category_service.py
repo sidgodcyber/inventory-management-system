@@ -1,7 +1,7 @@
 """Business rules for categories: validation, uniqueness, safe delete, audit.
 
 Layer: services (talks to repositories; never contains SQL or widgets)
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

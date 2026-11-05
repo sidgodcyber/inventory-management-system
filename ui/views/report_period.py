@@ -1,7 +1,7 @@
 """Report period selector: quick 30/90/180-day buttons or custom dates.
 
 Layer: ui/views
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

@@ -5,7 +5,7 @@ and the user service (new accounts, resets). The minimum length and the PBKDF2
 work factor come from the ``auth`` section of ``config.json``.
 
 Layer: services
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

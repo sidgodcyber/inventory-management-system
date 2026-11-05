@@ -1,7 +1,7 @@
 """Categories screen: list, search, add, edit and delete product categories.
 
 Layer: ui/views
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

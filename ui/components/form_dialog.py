@@ -7,7 +7,7 @@ markers, inline error display and keyboard shortcuts, so no view repeats form
 widget code.
 
 Layer: ui/components
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

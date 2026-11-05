@@ -1,10 +1,9 @@
 # Software Requirements Specification
-## Inventory Management System — Quality Goal Q11: Improve Maintainability
+## Inventory Management System
 
 | | |
 |---|---|
-| Course | BBAT104 — Fundamentals of TQM (B.Tech CSE AI&ML, 5th semester, Amrapali University) |
-| Author | Siddhi Baluja, Roll/Reg No 240302054 |
+| Author | Siddhi Baluja |
 | Version | 1.0 |
 
 ---
@@ -12,7 +11,7 @@
 ## 1. Introduction
 
 ### 1.1 Purpose
-This document specifies a desktop Inventory Management System (IMS) for a small store. The system serves the baseline TQM goal of **eliminating stockouts and tracking the inventory turnover rate**, and it is engineered to satisfy the assigned quality goal **Q11: Improve Maintainability**.
+This document specifies a desktop Inventory Management System (IMS) for a small store. The system exists to **eliminate stockouts and track the inventory turnover rate**, and it is engineered for **maintainability**.
 
 ### 1.2 Problem statement
 Small stores that track stock on paper or spreadsheets discover stockouts only when a customer asks for an item. They cannot say which products tie up capital or move slowly, and they cannot trace who changed a figure. Ad-hoc software built to fix this tends to accumulate hard-coded values and untraceable changes, so it becomes costly to change. Both problems are quality failures. The first hurts customers; the second hurts the team that maintains the system.

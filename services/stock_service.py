@@ -7,7 +7,7 @@ none do. Stock can never go negative: an over-issue raises
 :class:`~core.exceptions.StockError` before anything is written.
 
 Layer: services
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

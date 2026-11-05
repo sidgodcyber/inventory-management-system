@@ -1,7 +1,7 @@
-"""Tests for the settings, activity and system services (Q11 features 3-5).
+"""Tests for the settings, activity and system services.
 
 Layer: tests
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

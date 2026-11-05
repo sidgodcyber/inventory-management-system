@@ -5,7 +5,7 @@ settings) and the load/sort/page plumbing, so the CRUD screens, the stock
 history and the activity log share one implementation instead of three.
 
 Layer: ui/views
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

@@ -1,7 +1,7 @@
 """Date and period helpers built on the database timestamp format.
 
 Layer: utils (stateless helpers)
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

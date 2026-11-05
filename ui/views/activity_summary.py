@@ -1,7 +1,7 @@
 """Human-readable one-line summaries of activity-log payloads.
 
 Layer: ui/views (presentation helper)
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

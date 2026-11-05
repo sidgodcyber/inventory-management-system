@@ -2,11 +2,11 @@
 
 The module inventory is discovered at runtime by parsing each source file's
 header docstring with :mod:`ast`; nothing is imported or hard-coded. The screen
-therefore stays accurate as modules are added, which demonstrates Q11's
-"Modular Structure" feature live.
+therefore stays accurate as modules are added, which shows the modular
+structure live.
 
 Layer: services
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations
@@ -91,9 +91,7 @@ class SystemService:
         return {
             "Application": cfg.get("app.name"),
             "Version": cfg.get("app.version"),
-            "Course": cfg.get("app.course"),
-            "Quality goal": cfg.get("app.quality_goal"),
-            "Author": f"{cfg.get('app.author')} ({cfg.get('app.roll_no')})",
+            "Author": cfg.get("app.author"),
             "Database": self._db.path,
             "Schema version": str(self._db.schema_version),
             "Log file": str(cfg.resolve_path("paths.log_file")),

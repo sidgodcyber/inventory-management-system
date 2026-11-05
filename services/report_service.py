@@ -5,7 +5,7 @@ calculations in :mod:`services.turnover` (formulas documented there and in
 docs/SRS.md, section CTQ). Report exports are audited as ``EXPORT``.
 
 Layer: services
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

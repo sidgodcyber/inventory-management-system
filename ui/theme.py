@@ -5,7 +5,7 @@ variants are stored as ``<name>_light`` / ``<name>_dark`` keys and resolved here
 so no view ever hard-codes a colour.
 
 Layer: ui
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

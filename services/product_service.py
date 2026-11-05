@@ -4,7 +4,7 @@ Field-level validation lives in :mod:`services.product_validation`; this module
 applies the business workflow around it and writes the audit trail.
 
 Layer: services
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

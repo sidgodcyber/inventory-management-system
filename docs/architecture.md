@@ -1,6 +1,6 @@
-# Architecture — Inventory Management System (Q11: Improve Maintainability)
+# Architecture — Inventory Management System
 
-**Author:** Siddhi Baluja (240302054) · BBAT104 Fundamentals of TQM
+**Author:** Siddhi Baluja
 
 ## 1. Layers
 
@@ -176,7 +176,7 @@ Recorded here as the brief requires whenever something was ambiguous.
 | D5 | **ADJUST stores a signed delta.** The operator enters the *counted* quantity, and a reason is mandatory. | Matches a physical stock count, and the history sums correctly. |
 | D6 | **Soft delete** for products with history (`is_active = 0`, restorable). Hard delete applies only when a product has no movements. Categories and suppliers in use cannot be deleted. | Keeps history and foreign keys intact. |
 | D7 | **Average inventory is the daily average of reconstructed closing stock**, not (opening + closing) / 2. | The two-point average overstated turnover about 3x when stock was replenished mid-period. Values use the current unit cost (a documented approximation). |
-| D8 | **Errors.** Expected `AppError`s (validation, stock rules) are logged as `ERROR` at level `WARNING`. Unexpected exceptions are logged as `ERROR` at level `ERROR` with a short traceback. The UI shows friendly text only. | Both are defects for the Review 3–4 checksheet and Pareto chart; the level separates user mistakes from bugs. |
+| D8 | **Errors.** Expected `AppError`s (validation, stock rules) are logged as `ERROR` at level `WARNING`. Unexpected exceptions are logged as `ERROR` at level `ERROR` with a short traceback. The UI shows friendly text only. | Both are defects for the checksheet and Pareto chart; the level separates user mistakes from bugs. |
 | D9 | **Real sign-in replaced the operator settings.** Accounts live in a `users` table (schema v2), and the signed-in username is recorded as the `user` on every audit entry and stock movement. | Free-text operator settings could be changed by anyone, so the audit trail proved nothing. |
 | D10 | **QO6 is judged on application code**: `config core models repositories services ui utils main.py`. `scripts/` is tooling and is reported for information; QO5 covers both. | The brief asks for the measurement "over the source folders". |
 | D11 | **Seeded data.** The seed script drives the real services with back-dated movements (`occurred_at`). Activity entries are timestamped at seeding time. | Seeded data is validated and audited exactly like real use. |

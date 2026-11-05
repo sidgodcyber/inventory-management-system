@@ -9,7 +9,7 @@ The database schema builds its ``CHECK`` constraints from these tuples, so the
 Python code and the SQLite schema can never drift apart.
 
 Layer: core (leaf module, imports nothing from the application)
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

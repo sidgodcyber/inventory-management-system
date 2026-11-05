@@ -1,7 +1,7 @@
 """Shared model helpers: row mapping, list queries and paginated results.
 
 Layer: models (shared data structures, no behaviour beyond derived values)
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

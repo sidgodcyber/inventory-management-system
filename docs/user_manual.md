@@ -78,7 +78,7 @@ Both screens work like Products: search, sort, page, add, edit and delete. A cat
 Every action is recorded here with the time, signed-in user, action, entity, record ID and a summary such as `name: Pen → Gel pen` or `qty 5: 20 → 15`.
 - **Filter** by date range, action, entity and user, then **Apply**. The search box looks inside the details.
 - **Select a row** to see its full details (old and new values, or the error context) in the pane below.
-- **ERROR** rows (red, or amber for user mistakes such as an over-issue) are the raw data for the TQM defect checksheet.
+- **ERROR** rows (red, or amber for user mistakes such as an over-issue) are the raw data for the defect checksheet.
 - **LOGIN** rows show each sign-in and sign-out. Failed attempts appear at level WARNING. Passwords are never recorded.
 - **Export CSV** saves the filtered entries.
 - **Purge old entries** deletes entries older than the retention setting after you confirm. The purge itself is logged.
@@ -109,7 +109,7 @@ Press **Save changes** to apply. Every value is checked first, and if one is inv
 You cannot deactivate your own account, and the last active Admin cannot be deactivated or moved to another role, so someone can always manage the system.
 
 ## About
-The **Overview** tab shows the version, author, file locations, schema version, where each Q11 feature lives, the layer diagram and the rules the code follows. The **Modules** tab lists every source module with its purpose, read live from the code.
+The **Overview** tab shows the version, author, file locations, schema version, where each maintainability feature lives, the layer diagram and the rules the code follows. The **Modules** tab lists every source module with its purpose, read live from the code.
 
 ## Maintenance commands
 

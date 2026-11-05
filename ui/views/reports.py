@@ -1,12 +1,12 @@
 """Reports screen: inventory turnover, days of stock and the reorder list.
 
-Turnover (COGS ÷ average inventory value) is the baseline TQM metric. Days of
+Turnover (COGS ÷ average inventory value) is the core metric. Days of
 stock flags products likely to stock out soon. Both reports export to CSV
 for submission or further analysis. The tabs are implemented in
 :mod:`ui.views.report_turnover` and :mod:`ui.views.report_reorder`.
 
 Layer: ui/views
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

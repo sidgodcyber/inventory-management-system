@@ -5,11 +5,11 @@ handler for every caught exception. Expected errors (:class:`AppError`, e.g.
 a validation failure or an attempted over-issue) are stored at ``WARNING``
 level. Unexpected defects are stored at ``ERROR`` level with a short
 traceback. Both use action ``ERROR`` with a structured payload (context,
-type, message), which is what the defect checksheet and Pareto chart of later
-TQM reviews are built from.
+type, message), which is what the defect checksheet and Pareto chart are
+built from.
 
 Layer: services
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

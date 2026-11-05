@@ -5,7 +5,7 @@ entry records the signed-in username, and every protected service method calls
 :meth:`AuthService.require` with a permission from :mod:`services.permissions`.
 
 Layer: services
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

@@ -4,7 +4,7 @@ Adding a new configurable value means adding one line here; the validator in
 :mod:`config.validation` then checks it automatically on every start-up.
 
 Layer: config (data only)
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations
@@ -18,9 +18,6 @@ SCHEMA: dict[str, type | tuple[type, ...]] = {
     "app.tagline": str,
     "app.version": str,
     "app.author": str,
-    "app.roll_no": str,
-    "app.course": str,
-    "app.quality_goal": str,
     "paths.database": str,
     "paths.log_file": str,
     "paths.export_dir": str,

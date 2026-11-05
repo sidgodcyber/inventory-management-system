@@ -2,10 +2,10 @@
 
 Shows every business event written by ``log_activity`` (who did what, to which
 record, when, with old -> new values). ``ERROR`` entries are the raw data for
-the defect checksheet and Pareto analysis in later TQM reviews.
+the defect checksheet and Pareto analysis.
 
 Layer: ui/views
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

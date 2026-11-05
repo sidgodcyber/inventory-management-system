@@ -1,7 +1,7 @@
 """Shared pytest fixtures: a fresh, migrated database for every test.
 
 Layer: tests
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

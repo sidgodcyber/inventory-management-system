@@ -13,7 +13,7 @@ Formulas:
 * ``days of stock``  = on hand / (units issued / days in period)
 
 Layer: services
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

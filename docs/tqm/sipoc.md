@@ -1,7 +1,5 @@
 # SIPOC: Stock management process
 
-> Template for Reviews 3–4. Inventory Management System (Q11), Siddhi Baluja (240302054).
-
 | Suppliers | Inputs | Process | Outputs | Customers |
 |---|---|---|---|---|
 | | | 1. Receive goods (stock in) | | |

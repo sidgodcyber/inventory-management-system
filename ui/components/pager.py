@@ -1,7 +1,7 @@
 """Pager: "Rows x–y of n · Page p of q" with previous/next buttons.
 
 Layer: ui/components
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

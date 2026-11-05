@@ -1,12 +1,12 @@
 """Dashboard: headline stock health, two charts and the reorder list.
 
-Supports the baseline TQM goal at a glance: how many products are at risk of
+Supports the core goal at a glance: how many products are at risk of
 stockout, how fast inventory turns, where the money sits, and how stock has
 moved over the last month. Cards and chart drawing live in
 :mod:`ui.views.dashboard_cards` and :mod:`ui.views.dashboard_charts`.
 
 Layer: ui/views
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

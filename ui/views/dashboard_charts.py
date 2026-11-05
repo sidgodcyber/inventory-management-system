@@ -6,7 +6,7 @@ afterwards. Series colours come from the validated categorical pair in the
 palette (``chart_series1`` / ``chart_series2``), never from status colours.
 
 Layer: ui/views
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

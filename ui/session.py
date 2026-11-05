@@ -1,7 +1,7 @@
 """Helpers for the signed-in session: role-filtered sidebar and status-bar text.
 
 Layer: ui
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

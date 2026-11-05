@@ -1,7 +1,7 @@
 """Read-only pane showing one activity entry in full (summary plus JSON).
 
 Layer: ui/views
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

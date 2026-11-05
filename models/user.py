@@ -4,7 +4,7 @@ The password hash is deliberately left out of :meth:`User.audit_values`, so it
 can never reach the activity log.
 
 Layer: models
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

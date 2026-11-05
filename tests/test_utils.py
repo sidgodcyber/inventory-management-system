@@ -1,7 +1,7 @@
 """Tests for validators, formatters, date helpers and CSV export.
 
 Layer: tests
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

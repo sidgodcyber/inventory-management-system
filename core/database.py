@@ -10,7 +10,7 @@ The schema itself lives in :mod:`core.schema` and is versioned with
 ``PRAGMA user_version``; :meth:`Database.initialize` applies pending migrations.
 
 Layer: core (bottom layer; repositories are its only callers)
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

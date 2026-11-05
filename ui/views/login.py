@@ -1,7 +1,7 @@
 """Sign-in screen shown before anything else (and after signing out).
 
 Layer: ui/views
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

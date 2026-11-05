@@ -1,7 +1,7 @@
 """Filter bar for the stock transaction history (product, type, date range).
 
 Layer: ui/views
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

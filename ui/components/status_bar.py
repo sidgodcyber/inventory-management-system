@@ -5,7 +5,7 @@ right side shows operator name and role, database path and app version, all
 taken from config/settings by the caller.
 
 Layer: ui/components
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

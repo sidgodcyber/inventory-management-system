@@ -10,7 +10,7 @@ Start-up sequence:
    recorded as a ``LOGIN`` activity entry).
 
 Layer: entry point (composition only, no business logic)
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

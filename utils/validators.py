@@ -7,7 +7,7 @@ email formats) come from the ``validation`` section of ``config.json``; the
 generic number/date/choice parsing lives in :mod:`utils.parsing`.
 
 Layer: utils (stateless helpers, used by services)
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

@@ -6,7 +6,7 @@ screens the user's role may open. Signing out discards every screen, so the
 next user never sees the previous user's data or buttons.
 
 Layer: ui
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

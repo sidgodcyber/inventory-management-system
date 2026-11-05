@@ -1,7 +1,7 @@
 """Supplier model: a vendor that products are purchased from.
 
 Layer: models
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

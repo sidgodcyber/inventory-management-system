@@ -1,7 +1,7 @@
 """Filter objects passed from the UI to services for history and log screens.
 
 Layer: models
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

@@ -6,7 +6,7 @@ the UI can show its ``message`` in a friendly dialog. Anything that is *not* an
 user sees a generic apology instead of a traceback.
 
 Layer: core (leaf module, usable by every layer)
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

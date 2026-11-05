@@ -1,7 +1,5 @@
 # FMEA: Failure Mode and Effects Analysis
 
-> Template for Reviews 3–4. Inventory Management System (Q11), Siddhi Baluja (240302054).
-
 Scales 1–10. **RPN = S × O × D.** Act first on the highest RPN.
 
 | # | Process step / function | Failure mode | Effect | S | Potential cause | O | Current control | D | RPN | Mitigation / action | Owner | New S | New O | New D | New RPN |

@@ -1,7 +1,7 @@
 """CSV export via pandas, with Excel-friendly UTF-8 encoding.
 
 Layer: utils (stateless helpers, used by services)
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

@@ -1,7 +1,7 @@
 """Tests for :mod:`core.settings_manager` (QO3: behaviour changeable at runtime).
 
 Layer: tests
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

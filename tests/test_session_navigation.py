@@ -1,7 +1,7 @@
 """Tests that each role is offered exactly the screens it may open.
 
 Layer: tests
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

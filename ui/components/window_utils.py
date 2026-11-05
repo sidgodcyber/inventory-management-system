@@ -1,7 +1,7 @@
 """Small window helpers shared by dialogs.
 
 Layer: ui/components
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

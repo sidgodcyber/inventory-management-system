@@ -5,7 +5,7 @@ that maps UI column keys to SQL expressions. User input therefore never
 reaches an ``ORDER BY`` clause directly, which rules out SQL injection.
 
 Layer: repositories (talks to core/database)
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations

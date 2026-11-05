@@ -1,7 +1,5 @@
 # CTQ tree
 
-> Template for Reviews 3–4. Inventory Management System (Q11), Siddhi Baluja (240302054).
-
 ```mermaid
 flowchart LR
     N[Customer need] --> D1[Driver 1]

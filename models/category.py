@@ -1,7 +1,7 @@
 """Category model: a group of related products (e.g. Stationery).
 
 Layer: models
-Author: Siddhi Baluja (240302054)
+Author: Siddhi Baluja
 """
 
 from __future__ import annotations
