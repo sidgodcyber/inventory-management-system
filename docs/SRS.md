@@ -18,8 +18,8 @@ This document specifies a desktop Inventory Management System (IMS) for a small 
 Small stores that track stock on paper or spreadsheets discover stockouts only when a customer asks for an item. They cannot say which products tie up capital or move slowly, and they cannot trace who changed a figure. Ad-hoc software built to fix this tends to accumulate hard-coded values and untraceable changes, so it becomes costly to change. Both problems are quality failures. The first hurts customers; the second hurts the team that maintains the system.
 
 ### 1.3 Scope
-In scope: categories, suppliers and products (CRUD); stock in, stock out and adjustments with history; low-stock alerts; turnover and days-of-stock reports; a dashboard; CSV export; runtime settings; an audit trail; and maintainability evidence (tests, complexity, documentation coverage).
-Out of scope: multi-user authentication, purchase-order workflow, barcode hardware, networked or multi-store use.
+In scope: sign-in with role-based permissions and user management; categories, suppliers and products (CRUD); stock in, stock out and adjustments with history; low-stock alerts; turnover and days-of-stock reports; a dashboard; CSV export; runtime settings; an audit trail; and maintainability evidence (tests, complexity, documentation coverage).
+Out of scope: purchase-order workflow, barcode hardware, networked or multi-store use.
 
 ### 1.4 Definitions
 | Term | Meaning |
@@ -38,15 +38,21 @@ Out of scope: multi-user authentication, purchase-order workflow, barcode hardwa
 A standalone Python 3.10+ desktop application. It uses a CustomTkinter UI, a single SQLite file, and Pandas/Matplotlib for analytics. The code is layered as UI → services → repositories → core (see `docs/architecture.md`).
 
 ### 2.2 User roles
-The app has a single login. The current operator's name and role are runtime settings and are recorded on every audit entry.
+Every user signs in with a username and password. Their role decides which screens and actions are available, and their username is recorded on every audit entry.
 
-| Role | Typical tasks |
-|---|---|
-| Admin / Store Manager | Maintain products, categories and suppliers; change settings; review reports and the activity log; purge old log entries |
-| Store Staff | Record stock in, stock out and adjustments; view the dashboard and products |
+| Permission | Admin | Store Manager | Store Staff |
+|---|:-:|:-:|:-:|
+| View the dashboard, product list and reports | ✓ | ✓ | ✓ |
+| Record stock in, stock out and adjustments | ✓ | ✓ | ✓ |
+| Add, edit, delete and restore products, categories and suppliers | ✓ | ✓ | |
+| Export to CSV | ✓ | ✓ | |
+| View the activity log | ✓ | ✓ | |
+| Change system settings | ✓ | | |
+| Purge the activity log | ✓ | | |
+| Manage user accounts | ✓ | | |
 
 ### 2.3 Assumptions and constraints
-- **A1.** One operator uses the application at a time on one computer.
+- **A1.** One user is signed in at a time, on one computer.
 - **A2.** Stock valuation uses each product's current unit cost.
 - **C1.** The mandatory stack is Python, CustomTkinter, SQLite3, Pandas, Matplotlib, pytest and radon. No web frameworks and no ORM.
 - **C2.** All tunable values must come from `config/config.json` or the `settings` table.
@@ -70,12 +76,15 @@ The app has a single login. The current operator's name and role are runtime set
 | FR-12 | The system shall report **turnover** and **days of stock** per product and store-wide for a chosen period, exportable to CSV. |
 | FR-13 | The **dashboard** shall show total products, stock value, low-stock count, stockouts, turnover, stock value by category (chart), units in vs out over the last N days (chart) and the reorder list. |
 | FR-14 | The product list, transaction history, turnover report, reorder list and activity log shall export to CSV. |
-| FR-15 | A **Settings** screen shall edit the runtime settings: appearance, currency, default reorder level, page size, date format, log level, log retention, operator name and role. It shall save, revert and reset to `config.json` defaults, and apply changes without a restart. |
+| FR-15 | A **Settings** screen shall edit the runtime settings: appearance, currency, default reorder level, page size, date format, log level and log retention. It shall save, revert and reset to `config.json` defaults, and apply changes without a restart. |
 | FR-16 | Every create, update, delete, stock movement, settings change, export, login and caught error shall be written to the **activity log** with user, timestamp, entity, id, old→new values and level. |
 | FR-17 | An **Activity Log** screen shall filter by date range, action, entity and user, search details, show full details, export to CSV and purge entries older than the retention period after confirmation. |
 | FR-18 | Technical events shall be written to a **rotating log file** (`logs/app.log`) at the configured level. |
 | FR-19 | An **About / Architecture** screen shall show app identity, paths, schema version, the layer diagram and rules, and a live module inventory. |
 | FR-20 | Errors shall be shown as friendly dialogs or inline form messages and never as raw tracebacks. |
+| FR-21 | The system shall require sign-in with a username and password before any screen opens, and shall offer sign-out and changing your own password. A wrong password, unknown user or deactivated account gives one generic message. |
+| FR-22 | An Admin shall be able to add users, change a user's name and role, reset a password and deactivate or reactivate an account. New or reset accounts must set a new password at their next sign-in. An Admin cannot deactivate themselves, and the last active Admin cannot be deactivated or demoted. |
+| FR-23 | Each role shall see only the screens and actions in section 2.2, and the service layer shall refuse anything else even if a screen allowed it. |
 
 ## 4. Non-functional requirements (maintainability, mapped to the quality objectives)
 
@@ -90,6 +99,8 @@ The app has a single login. The current operator's name and role are runtime set
 | NFR-07 | Repository and service layers covered by automated tests, all passing | QO7 | `pytest` |
 | NFR-08 | A broken `config.json` stops start-up with a message listing every problem | QO2 | `tests/test_config_loader.py` |
 | NFR-09 | Data and audit trail commit atomically; stock never negative (DB `CHECK` + service rule) | QO4 | `tests/test_stock_product_services.py` |
+| NFR-10 | Passwords stored only as salted PBKDF2-HMAC-SHA256 hashes and never written to any log | QO4 | `tests/test_passwords.py`, `tests/test_auth_user_services.py` |
+| NFR-11 | Sign-ins, sign-outs, failed sign-ins and account changes appear in the activity log under the real username | QO4 | Activity Log screen, `tests/test_auth_user_services.py` |
 
 ## 5. Critical-to-Quality (CTQ) parameters
 
@@ -122,4 +133,9 @@ The app has a single login. The current operator's name and role are runtime set
 | activity_log.details_json | TEXT | JSON: `{"new":…}`, `{"old":…}`, `{"changes":{field:{old,new}}}`, or error context |
 | activity_log.level | TEXT | `DEBUG … CRITICAL` |
 | settings.value_type | TEXT | `str`, `int`, `float`, `bool` |
+| users.username | TEXT | Required, unique (case-insensitive) |
+| users.role | TEXT | `Admin`, `Store Manager`, `Store Staff` (`CHECK`) |
+| users.password_hash | TEXT | `pbkdf2_sha256$iterations$salt$hash` |
+| users.must_change_password | INTEGER | 1 = new password required at next sign-in |
+| users.is_active | INTEGER | 1 active, 0 deactivated (cannot sign in) |
 | *all* created_at / timestamp | TEXT | `YYYY-MM-DD HH:MM:SS` local time |

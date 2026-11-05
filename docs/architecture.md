@@ -8,7 +8,7 @@
 flowchart TB
     subgraph UI["ui/ — presentation (CustomTkinter)"]
         APP[app.py<br/>main window, sidebar, status bar]
-        VIEWS[views/<br/>Dashboard · Products · Categories · Suppliers · Stock<br/>Reports · Activity Log · Settings · About]
+        VIEWS[views/<br/>Sign-in · Dashboard · Products · Categories · Suppliers · Stock<br/>Reports · Activity Log · Settings · Users · About]
         COMP[components/<br/>DataTable · Pager · FormDialog · ConfirmDialog<br/>StatusBar · StatCard · ChartPanel · Toolbar · ProductPicker]
     end
     subgraph SVC["services/ — business rules"]
@@ -16,6 +16,7 @@ flowchart TB
         S2[stock_service<br/>IN · OUT · ADJUST, never negative]
         S3[report_service + turnover<br/>turnover, days of stock]
         S4[settings / activity / system services]
+        S5[auth / user services + permissions<br/>sign-in, roles, require checks]
         CONT[container.py<br/>composition root]
     end
     subgraph REPO["repositories/ — SQL only"]
@@ -49,7 +50,8 @@ flowchart TB
 3. **Widgets live only in `ui/`.** Services never import tkinter.
 4. `config`, `core/logger`, `core/constants`, `models` and `utils` are shared and may be used by any layer above `core`.
 5. **No hard-coded configuration.** Paths, thresholds, theme, colours, fonts, page size, currency, date format and log level come from `config/config.json` or the `settings` table.
-6. **Every create/update/delete, stock movement, settings change, export and caught error** is written through `core.logger.log_activity()`, called only from services.
+6. **Every create/update/delete, stock movement, settings change, export, sign-in and caught error** is written through `core.logger.log_activity()`, called only from services.
+7. **Permissions are enforced in services.** Every write and restricted read calls `AuthService.require()`. The UI hides what a role cannot use, but it is not the security boundary.
 
 ## 2. Main workflow
 
@@ -125,6 +127,18 @@ erDiagram
         text details_json "old/new values"
         text level
     }
+    USERS {
+        int id PK
+        text username UK
+        text full_name
+        text role "Admin | Store Manager | Store Staff"
+        text password_hash "PBKDF2, never logged"
+        int must_change_password
+        int is_active "deactivated users cannot sign in"
+        text last_login_at
+        text created_at
+        text updated_at
+    }
     SETTINGS {
         text key PK
         text value
@@ -144,9 +158,9 @@ Indexes cover SKU, names, `category_id`, `supplier_id`, `product_id`, transactio
 | `core/` | DB connection and transactions, schema, logging, settings, exceptions | `database`, `schema`, `logger`, `settings_manager`, `setting_definitions` |
 | `models/` | Dataclasses shared across layers | `product`, `stock_transaction`, `activity_log`, `common` (`ListQuery`, `Page`) |
 | `repositories/` | All SQL; one class per table | `product_repository`, `stock_transaction_repository`, ... |
-| `services/` | Validation, stock rules, analytics, audit | `stock_service`, `product_service`, `product_validation`, `turnover`, `report_service`, `container` |
-| `ui/` | Window, screens, reusable widgets | `app`, `navigation`, `views/*`, `components/*` |
-| `utils/` | Pure helpers | `validators`, `parsing`, `formatters`, `date_helpers`, `csv_export` |
+| `services/` | Validation, stock rules, analytics, audit, sign-in and permissions | `stock_service`, `product_service`, `product_validation`, `turnover`, `report_service`, `auth_service`, `user_service`, `permissions`, `password_policy`, `container` |
+| `ui/` | Window, session, screens, reusable widgets | `app`, `session`, `navigation`, `views/*`, `components/*` |
+| `utils/` | Pure helpers | `validators`, `parsing`, `passwords`, `formatters`, `date_helpers`, `csv_export` |
 | `scripts/` | Tooling | `seed_data`, `quality_report`, `doc_coverage` |
 
 ## 5. Design decisions
@@ -163,9 +177,13 @@ Recorded here as the brief requires whenever something was ambiguous.
 | D6 | **Soft delete** for products with history (`is_active = 0`, restorable). Hard delete applies only when a product has no movements. Categories and suppliers in use cannot be deleted. | Keeps history and foreign keys intact. |
 | D7 | **Average inventory is the daily average of reconstructed closing stock**, not (opening + closing) / 2. | The two-point average overstated turnover about 3x when stock was replenished mid-period. Values use the current unit cost (a documented approximation). |
 | D8 | **Errors.** Expected `AppError`s (validation, stock rules) are logged as `ERROR` at level `WARNING`. Unexpected exceptions are logged as `ERROR` at level `ERROR` with a short traceback. The UI shows friendly text only. | Both are defects for the Review 3–4 checksheet and Pareto chart; the level separates user mistakes from bugs. |
-| D9 | **Single-login app.** The operator name and role are runtime settings and are recorded as the `user` on every audit entry. | The brief lists roles without authentication; the simplest option. |
+| D9 | **Real sign-in replaced the operator settings.** Accounts live in a `users` table (schema v2), and the signed-in username is recorded as the `user` on every audit entry and stock movement. | Free-text operator settings could be changed by anyone, so the audit trail proved nothing. |
 | D10 | **QO6 is judged on application code**: `config core models repositories services ui utils main.py`. `scripts/` is tooling and is reported for information; QO5 covers both. | The brief asks for the measurement "over the source folders". |
 | D11 | **Seeded data.** The seed script drives the real services with back-dated movements (`occurred_at`). Activity entries are timestamped at seeding time. | Seeded data is validated and audited exactly like real use. |
 | D12 | **Modules kept small (MI ≥ 65).** Large screens are split into panels (`ListView`, `MovementPanel`, `TurnoverPanel`, ...). | The QO6 evidence, and smaller units are easier to change safely. |
 | D13 | **Chart colours.** The two series use a colour-vision-deficiency-validated categorical pair (blue/orange, separate light and dark steps). Red, amber and green are reserved for status. | Accessible and unambiguous charts. |
 | D14 | **`ttk.Treeview` for tables.** It is the only Tkinter widget used outside CustomTkinter. | CustomTkinter has no table widget (allowed by the brief). |
+| D15 | **Passwords use PBKDF2-HMAC-SHA256 from the standard library**, with a random salt per password and the iteration count stored in each hash. | No new dependency, and the work factor can rise later without breaking existing passwords. |
+| D16 | **Permissions are enforced in services, with the UI only hiding controls.** `services/permissions.py` is the single definition of what each role may do. | A missed button can never become a security hole, and the rules are testable without a window. |
+| D17 | **Accounts are deactivated, never deleted**, and the last active Admin is protected. | The audit trail always resolves to a real user, and the system can never lose its administrator. |
+| D18 | **Sign-ins reuse the `LOGIN` action** (`result`: success, failed or logout) rather than adding new actions. | SQLite cannot alter a `CHECK` constraint without rebuilding `activity_log`. |
