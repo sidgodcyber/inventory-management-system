@@ -10,9 +10,34 @@ python scripts/seed_data.py        # optional: 40 products and 90 days of sample
 python main.py
 ```
 
-The window opens on the **Dashboard**. Use the sidebar to switch screens. The status bar at the bottom shows short confirmations on the left, and the operator, role, database file and version on the right. The red number on **Products** counts products at or below their reorder level.
+The window opens on the **sign-in screen**. Enter your username and password. After signing in you land on the **Dashboard**. Use the sidebar to switch screens. The status bar at the bottom shows short confirmations on the left, and the signed-in user, role, database file and version on the right. The red number on **Products** counts products at or below their reorder level.
 
 If `config/config.json` is broken, the app does not start. It shows a message listing every problem; fix the file and start again.
+
+## Signing in and roles
+
+**First sign-in:** use `admin` with the password in `auth.initial_admin_password` in `config/config.json` (`ChangeMe@123` as shipped). The sample data also adds `ravi` (Store Manager) and `asha` (Store Staff), both with `Demo@1234`.
+
+**New password:** a new account, or one whose password was reset, must set its own password straight after signing in. Passwords need at least 8 characters by default (`auth.min_password_length`). Cancelling signs you out again.
+
+**Changing your password:** press **Change password** at the bottom of the sidebar.
+
+**Signing out:** press **Sign out** at the bottom of the sidebar. Closing the window also signs you out.
+
+**Forgotten password:** ask an Admin to reset it on the Users screen.
+
+Your role decides which screens and buttons you see:
+
+| Action | Admin | Store Manager | Store Staff |
+|---|:-:|:-:|:-:|
+| Dashboard, product list, reports | ✓ | ✓ | ✓ |
+| Record stock in, stock out and adjustments | ✓ | ✓ | ✓ |
+| Add, edit or delete products, categories and suppliers | ✓ | ✓ | |
+| Export to CSV | ✓ | ✓ | |
+| View the Activity Log | ✓ | ✓ | |
+| Change Settings | ✓ | | |
+| Purge old Activity Log entries | ✓ | | |
+| Manage users | ✓ | | |
 
 ## Dashboard
 - **Cards:** active products, stock value at cost, low-stock count, stockouts, and inventory turnover for the configured period (90 days by default).
@@ -50,10 +75,11 @@ Both screens work like Products: search, sort, page, add, edit and delete. A cat
 - Each tab has its own **Export CSV** button.
 
 ## Activity Log
-Every action is recorded here with the time, operator, action, entity, record ID and a summary such as `name: Pen → Gel pen` or `qty 5: 20 → 15`.
+Every action is recorded here with the time, signed-in user, action, entity, record ID and a summary such as `name: Pen → Gel pen` or `qty 5: 20 → 15`.
 - **Filter** by date range, action, entity and user, then **Apply**. The search box looks inside the details.
 - **Select a row** to see its full details (old and new values, or the error context) in the pane below.
 - **ERROR** rows (red, or amber for user mistakes such as an over-issue) are the raw data for the TQM defect checksheet.
+- **LOGIN** rows show each sign-in and sign-out. Failed attempts appear at level WARNING. Passwords are never recorded.
 - **Export CSV** saves the filtered entries.
 - **Purge old entries** deletes entries older than the retention setting after you confirm. The purge itself is logged.
 
@@ -71,9 +97,16 @@ Each setting shows a description and its default from `config/config.json`.
 | Date format | Display and typing of dates (e.g. `%d-%m-%Y`) |
 | Log level | Minimum level written to `logs/app.log`: applies instantly |
 | Activity-log retention | Age (days) after which entries can be purged |
-| Operator name / role | Shown in the status bar and recorded on every action |
 
 Press **Save changes** to apply. Every value is checked first, and if one is invalid nothing is saved. **Revert** discards unsaved edits. **Reset to defaults** restores `config.json` values after you confirm. Every change appears in the Activity Log as `SETTINGS_CHANGE` with its old and new value.
+
+## Users (Admin only)
+- **+ Add user:** username, name, role and an initial password. The user must change it at first sign-in.
+- **Edit:** change a user's name or role. Usernames cannot be changed.
+- **Reset password:** set a temporary password for a user who has forgotten theirs. They must change it at next sign-in.
+- **Activate / Deactivate:** a deactivated user cannot sign in. Accounts are never deleted, so the Activity Log always points to a real user.
+
+You cannot deactivate your own account, and the last active Admin cannot be deactivated or moved to another role, so someone can always manage the system.
 
 ## About
 The **Overview** tab shows the version, author, file locations, schema version, where each Q11 feature lives, the layer diagram and the rules the code follows. The **Modules** tab lists every source module with its purpose, read live from the code.

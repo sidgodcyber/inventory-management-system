@@ -1,6 +1,6 @@
 # Quality report: maintainability evidence (Q11)
 
-Generated 2026-11-05 13:26 by `scripts/quality_report.py` (radon CC + MI, docstring coverage). **Do not edit by hand.**
+Generated 2026-11-05 18:23 by `scripts/quality_report.py` (radon CC + MI, docstring coverage). **Do not edit by hand.**
 
 Scope: QO6 is judged on the application (`config`, `core`, `models`, `repositories`, `services`, `ui`, `utils`, `main.py`). Developer tooling in `scripts/` is listed for information; QO5 covers both.
 
@@ -9,11 +9,11 @@ Scope: QO6 is judged on the application (`config`, `core`, `models`, `repositori
 | Objective | Measure | Target | Result | Verdict |
 |-----------|---------|--------|--------|---------|
 | QO6 | Average cyclomatic complexity | ≤ 5 (grade A) | 1.95 (grade A) | ✅ PASS |
-| QO6 | Maintainability index, every file | ≥ 65 | min 65.2, avg 81.5 | ✅ PASS |
+| QO6 | Maintainability index, every file | ≥ 65 | min 65.2, avg 81.4 | ✅ PASS |
 | QO5 | Docstrings + type hints | 100% | 100.0% (lowest category) | ✅ PASS |
-| QO7 | pytest (repositories, services, utils, config, core) | all pass | 175 passed in 26.92s | ✅ PASS |
+| QO7 | pytest (repositories, services, utils, config, core) | all pass | 180 passed in 29.92s | ✅ PASS |
 
-Files analysed: 104 · functions/methods: 590 · lines: 10,212
+Files analysed: 104 · functions/methods: 591 · lines: 10,217
 
 ## QO6: Complexity and maintainability per application file
 
@@ -103,7 +103,7 @@ Files analysed: 104 · functions/methods: 590 · lines: 10,212
 | `ui/views/dashboard_charts.py` | 91 | 4 | 2.75 | draw_value_bars (5) | 78.9 | A |
 | `ui/views/history_filters.py` | 100 | 5 | 2.20 | HistoryFilterBar.__init__ (4) | 82.6 | A |
 | `ui/views/list_view.py` | 140 | 14 | 1.14 | ListView.load_page (3) | 80.4 | A |
-| `ui/views/login.py` | 70 | 2 | 2.50 | LoginView.submit (3) | 85.0 | A |
+| `ui/views/login.py` | 75 | 3 | 2.33 | LoginView.submit (3) | 83.5 | A |
 | `ui/views/product_form.py` | 91 | 5 | 2.00 | ProductForm.load_lookups (3) | 84.7 | A |
 | `ui/views/products.py` | 199 | 16 | 1.88 | _tags (4) | 65.6 | A |
 | `ui/views/report_period.py` | 90 | 6 | 2.17 | PeriodBar.read (4) | 76.1 | A |
@@ -146,7 +146,7 @@ None: no function above CC 10 and every file has MI ≥ 65.
 | Modules (header docstring) | 107 | 107 | 100.0% |
 | Classes | 97 | 97 | 100.0% |
 | Public functions & methods | 473 | 473 | 100.0% |
-| Functions fully type-hinted | 631 | 631 | 100.0% |
+| Functions fully type-hinted | 632 | 632 | 100.0% |
 
 Files analysed: 107. Gaps found: 0.
 
