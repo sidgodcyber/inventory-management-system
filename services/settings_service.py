@@ -21,6 +21,8 @@ from core.database import Database
 from core.exceptions import ValidationError
 from core.logger import log_activity, set_log_level
 from core.settings_manager import SettingDefinition, SettingListener, SettingsManager
+from services.auth_service import AuthService
+from services.permissions import MANAGE_SETTINGS
 from utils.validators import Validator, is_valid_strftime
 
 Change = tuple[Any, Any]
@@ -34,14 +36,16 @@ class SettingsService:
         validator: Field validator.
         db: Database, used only to open atomic transactions.
         config: Source of defaults, choices and validation bounds.
+        auth: Session and permission checks.
     """
 
     def __init__(self, manager: SettingsManager, validator: Validator, db: Database,
-                 config: AppConfig) -> None:
+                 config: AppConfig, auth: AuthService) -> None:
         self._manager = manager
         self._validate = validator
         self._db = db
         self._config = config
+        self._auth = auth
         self._rules: dict[str, Callable[[Any, str], Any]] = self._build_rules()
         manager.subscribe(self._apply_side_effects)
 
@@ -67,7 +71,6 @@ class SettingsService:
         choices = {
             "appearance_mode": list(APPEARANCE_MODES),
             "log_level": list(LOG_LEVELS),
-            "operator_role": self._config.get("operator.roles"),
             "currency_symbol": self._config.get("inventory.currency_options"),
             "date_format": self._config.get("display.date_format_options"),
         }
@@ -90,6 +93,7 @@ class SettingsService:
         Raises:
             ValidationError: If any value is invalid (nothing is saved).
         """
+        self._auth.require(MANAGE_SETTINGS)
         clean = {key: self._clean(key, value) for key, value in changes.items()}
         applied: dict[str, Change] = {}
         try:
@@ -144,8 +148,6 @@ class SettingsService:
             "log_retention_days": lambda x, label: v.integer(
                 x, label, cfg.get("validation.retention_days_min"),
                 cfg.get("validation.retention_days_max")),
-            "operator_name": lambda x, label: v.text(x, label),
-            "operator_role": lambda x, label: v.choice(x, label, cfg.get("operator.roles")),
         }
 
     def _date_format(self, value: Any, label: str) -> str:

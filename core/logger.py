@@ -111,7 +111,7 @@ class ActivityLogger:
 
     Args:
         sink: Persists rows (the activity-log repository).
-        user_provider: Returns the current operator name (from settings).
+        user_provider: Returns the signed-in username (from the auth service).
     """
 
     def __init__(self, sink: ActivitySink, user_provider: Callable[[], str]) -> None:
@@ -136,7 +136,7 @@ class ActivityLogger:
             entity_id: Primary key (or setting key) of the affected record.
             details: JSON-serialisable payload, typically old/new values.
             level: Logging level name for this entry.
-            user: Operator name; defaults to the current operator setting.
+            user: Username; defaults to the signed-in user.
 
         Returns:
             The id of the inserted activity row.
@@ -146,16 +146,16 @@ class ActivityLogger:
         """
         _check_choice("action", action, ACTIONS)
         _check_choice("level", level, LOG_LEVELS)
-        operator = user or self._user_provider()
+        username = user or self._user_provider()
         details_json = json.dumps(dict(details or {}), default=str, ensure_ascii=False)
         ref = None if entity_id is None else str(entity_id)
         self._file_log.log(
             logging.getLevelName(level),
-            "%s %s#%s by %s %s", action, entity, ref, operator, details_json,
+            "%s %s#%s by %s %s", action, entity, ref, username, details_json,
         )
         timestamp = datetime.now().strftime(DB_TIMESTAMP_FORMAT)
         return self._sink.insert_activity(
-            timestamp, operator, action, entity, ref, details_json, level
+            timestamp, username, action, entity, ref, details_json, level
         )
 
 
@@ -175,7 +175,7 @@ def configure_activity_logger(
 
     Args:
         sink: Persists rows (the activity-log repository).
-        user_provider: Returns the current operator name.
+        user_provider: Returns the signed-in username.
 
     Returns:
         The newly installed :class:`ActivityLogger`.
@@ -202,7 +202,7 @@ def log_activity(
         entity_id: Primary key (or key) of the affected record.
         details: JSON-serialisable payload, typically old/new values.
         level: Logging level name for this entry.
-        user: Operator override; defaults to the current operator setting.
+        user: Username override; defaults to the signed-in user.
 
     Returns:
         The new activity id, or ``None`` if no sink is configured yet (the

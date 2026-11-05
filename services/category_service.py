@@ -13,6 +13,8 @@ from core.logger import diff_changes, log_activity
 from models.category import Category
 from models.common import ListQuery, Page
 from repositories.category_repository import CategoryRepository
+from services.auth_service import AuthService
+from services.permissions import MANAGE_CATALOG
 from utils.validators import Validator
 
 
@@ -23,12 +25,15 @@ class CategoryService:
         repo: Category repository.
         validator: Config-driven field validator.
         db: Database, used only to open atomic transactions.
+        auth: Session and permission checks.
     """
 
-    def __init__(self, repo: CategoryRepository, validator: Validator, db: Database) -> None:
+    def __init__(self, repo: CategoryRepository, validator: Validator, db: Database,
+                 auth: AuthService) -> None:
         self._repo = repo
         self._validate = validator
         self._db = db
+        self._auth = auth
 
     def find(self, query: ListQuery) -> Page[Category]:
         """Return one page of categories matching ``query``."""
@@ -55,6 +60,7 @@ class CategoryService:
         Raises:
             ValidationError: If the name is blank, too long or already used.
         """
+        self._auth.require(MANAGE_CATALOG)
         clean_name, clean_desc = self._clean(name, description)
         self._ensure_unique(clean_name)
         with self._db.transaction():
@@ -70,6 +76,7 @@ class CategoryService:
             NotFoundError: If the category does not exist.
             ValidationError: If the new name is invalid or taken.
         """
+        self._auth.require(MANAGE_CATALOG)
         current = self.get(category_id)
         clean_name, clean_desc = self._clean(name, description)
         self._ensure_unique(clean_name, exclude_id=category_id)
@@ -89,6 +96,7 @@ class CategoryService:
         Raises:
             ValidationError: If any product (even soft-deleted) still uses it.
         """
+        self._auth.require(MANAGE_CATALOG)
         category = self.get(category_id)
         in_use = self._repo.count_products(category_id)
         if in_use:

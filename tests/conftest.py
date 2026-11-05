@@ -21,10 +21,17 @@ from repositories.activity_log_repository import ActivityLogRepository
 from services.container import AppServices, build_services
 
 
+#: PBKDF2 work factor for tests (the shipped value is deliberately slow).
+TEST_PBKDF2_ITERATIONS = 1_000
+
+
 @pytest.fixture()
 def config() -> AppConfig:
-    """Return the shipped, validated configuration."""
-    return load_config()
+    """Return the shipped configuration with a fast password work factor."""
+    shipped = load_config()
+    data = shipped.as_dict()
+    data["auth"]["pbkdf2_iterations"] = TEST_PBKDF2_ITERATIONS
+    return AppConfig(data, shipped.source)
 
 
 @pytest.fixture()
@@ -38,8 +45,11 @@ def db(tmp_path: Path) -> Iterator[Database]:
 
 @pytest.fixture()
 def services(config: AppConfig, db: Database) -> Iterator[AppServices]:
-    """Fully wired services over the temporary database."""
-    yield build_services(config, db)
+    """Fully wired services, signed in as the initial admin account."""
+    wired = build_services(config, db)
+    wired.auth.login(config.get("auth.initial_admin_username"),
+                     config.get("auth.initial_admin_password"))
+    yield wired
     core_logger._activity_logger = None
 
 
@@ -49,9 +59,14 @@ def audit(db: Database):
     repo = ActivityLogRepository(db)
 
     def entries(action: str | None = None) -> list[ActivityLog]:
-        """Activity rows (oldest first), filtered by ``action`` when given."""
+        """Business activity rows (oldest first), filtered by ``action`` when given.
+
+        Account entries (the bootstrap admin and sign-ins) are left out so tests
+        can assert on the business events they trigger.
+        """
         page = repo.find(ActivityFilter(action=action), ListQuery(sort_by="timestamp",
                                                                    page_size=1000))
-        return sorted(page.items, key=lambda entry: entry.id)
+        entries = [entry for entry in page.items if entry.entity != "User"]
+        return sorted(entries, key=lambda entry: entry.id)
 
     return entries

@@ -47,3 +47,11 @@ class StockError(AppError):
 
 class DatabaseError(AppError):
     """The database rejected an operation (constraint, lock or I/O failure)."""
+
+
+class AuthenticationError(AppError):
+    """Sign-in failed: unknown user, wrong password or deactivated account."""
+
+
+class PermissionDeniedError(AppError):
+    """The signed-in user's role does not allow this action (or nobody is signed in)."""

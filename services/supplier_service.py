@@ -16,6 +16,8 @@ from core.logger import diff_changes, log_activity
 from models.common import ListQuery, Page
 from models.supplier import Supplier
 from repositories.supplier_repository import SupplierRepository
+from services.auth_service import AuthService
+from services.permissions import MANAGE_CATALOG
 from utils.validators import Validator
 
 # Fields compared when writing UPDATE audit entries.
@@ -29,12 +31,15 @@ class SupplierService:
         repo: Supplier repository.
         validator: Config-driven field validator.
         db: Database, used only to open atomic transactions.
+        auth: Session and permission checks.
     """
 
-    def __init__(self, repo: SupplierRepository, validator: Validator, db: Database) -> None:
+    def __init__(self, repo: SupplierRepository, validator: Validator, db: Database,
+                 auth: AuthService) -> None:
         self._repo = repo
         self._validate = validator
         self._db = db
+        self._auth = auth
 
     def find(self, query: ListQuery) -> Page[Supplier]:
         """Return one page of suppliers matching ``query``."""
@@ -64,6 +69,7 @@ class SupplierService:
         Raises:
             ValidationError: If any field is invalid.
         """
+        self._auth.require(MANAGE_CATALOG)
         supplier = self._parse(data)
         with self._db.transaction():
             new_id = self._repo.create(supplier)
@@ -77,6 +83,7 @@ class SupplierService:
             NotFoundError: If the supplier does not exist.
             ValidationError: If any field is invalid.
         """
+        self._auth.require(MANAGE_CATALOG)
         current = self.get(supplier_id)
         supplier = self._parse(data)
         supplier.id = supplier_id
@@ -93,6 +100,7 @@ class SupplierService:
         Raises:
             ValidationError: If products still reference the supplier.
         """
+        self._auth.require(MANAGE_CATALOG)
         supplier = self.get(supplier_id)
         in_use = self._repo.count_products(supplier_id)
         if in_use:

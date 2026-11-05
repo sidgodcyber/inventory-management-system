@@ -23,6 +23,8 @@ from models.reports import DashboardStats, TurnoverRow
 from repositories.product_repository import ProductRepository
 from repositories.stock_transaction_repository import StockTransactionRepository
 from services import turnover
+from services.auth_service import AuthService
+from services.permissions import EXPORT
 from utils.csv_export import default_export_path, write_csv
 from utils.date_helpers import date_range, days_ago, days_between, period_bounds
 
@@ -47,13 +49,15 @@ class ReportService:
         products: Product repository.
         transactions: Stock transaction repository.
         config: Configuration (turnover period, chart window, export folder).
+        auth: Session and permission checks.
     """
 
     def __init__(self, products: ProductRepository, transactions: StockTransactionRepository,
-                 config: AppConfig) -> None:
+                 config: AppConfig, auth: AuthService) -> None:
         self._products = products
         self._transactions = transactions
         self._config = config
+        self._auth = auth
 
     def default_period(self, today: date | None = None) -> tuple[date, date]:
         """The configured turnover window ending today.
@@ -168,6 +172,7 @@ class ReportService:
         Returns:
             The written file path.
         """
+        self._auth.require(EXPORT)
         rows = [vars(row) for row in self.turnover_report(start, end)]
         target = path or self._export_path("turnover")
         write_csv(rows, TURNOVER_COLUMNS, target)
@@ -185,6 +190,7 @@ class ReportService:
         Returns:
             The written file path.
         """
+        self._auth.require(EXPORT)
         rows = [{**p.to_dict(), "shortfall": p.reorder_level - p.quantity_on_hand}
                 for p in self.low_stock()]
         target = path or self._export_path("low_stock")

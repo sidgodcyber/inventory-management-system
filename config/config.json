@@ -92,11 +92,6 @@
   "activity_log": {
     "retention_days": 180
   },
-  "operator": {
-    "name": "Admin",
-    "role": "Admin",
-    "roles": ["Admin", "Store Manager", "Store Staff"]
-  },
   "auth": {
     "initial_admin_username": "admin",
     "initial_admin_full_name": "Administrator",

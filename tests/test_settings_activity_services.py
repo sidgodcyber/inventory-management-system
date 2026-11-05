@@ -26,7 +26,7 @@ from services.container import AppServices
 def test_save_logs_settings_change_with_old_and_new(services: AppServices, audit) -> None:
     """Each changed setting gets its own SETTINGS_CHANGE entry."""
     applied = services.settings.save({"page_size": "25", "currency_symbol": "$",
-                                      "operator_name": "Admin"})
+                                      "log_level": "INFO"})
     entries = audit("SETTINGS_CHANGE")
     assert set(applied) == {"page_size", "currency_symbol"}
     assert {e.entity_id: e.details for e in entries}["page_size"] == {"old": 15, "new": 25}
@@ -44,7 +44,7 @@ def test_invalid_setting_saves_nothing(services: AppServices, audit) -> None:
 @pytest.mark.parametrize(
     ("key", "value"),
     [("date_format", "dd-mm-yyyy"), ("log_level", "LOUD"), ("appearance_mode", "neon"),
-     ("operator_name", " "), ("log_retention_days", "0"), ("operator_role", "CEO")],
+     ("log_retention_days", "0"), ("page_size", "two")],
 )
 def test_setting_rules(services: AppServices, key: str, value: str) -> None:
     """Every setting has a validation rule."""
@@ -76,13 +76,12 @@ def test_reset_to_defaults(services: AppServices, config: AppConfig, audit) -> N
     assert len(audit("SETTINGS_CHANGE")) == 4
 
 
-def test_options_and_operator_used_in_audit(services: AppServices, audit) -> None:
-    """Choice lists come from config; the operator setting becomes the audit user."""
-    assert "Store Staff" in services.settings.options("operator_role")
+def test_options_and_signed_in_user_used_in_audit(services: AppServices, audit) -> None:
+    """Choice lists come from config; the signed-in user is recorded on audit entries."""
+    assert "dark" in services.settings.options("appearance_mode")
     assert services.settings.options("page_size") is None
-    services.settings.save({"operator_name": "Siddhi"})
     services.categories.create("Toys")
-    assert audit("CREATE")[0].user == "Siddhi"
+    assert audit("CREATE")[0].user == "admin"
 
 
 # -- activity -------------------------------------------------------------------
@@ -119,13 +118,13 @@ def test_purge_respects_retention(services: AppServices, db, audit) -> None:
 
 def test_activity_export_and_filters(services: AppServices, tmp_path: Path) -> None:
     """Export writes filtered entries; filter options list known values."""
-    services.activity.record_login()
     services.categories.create("Toys")
-    path = services.activity.export_csv(ActivityFilter(action="CREATE"), tmp_path / "a.csv")
+    path = services.activity.export_csv(ActivityFilter(action="CREATE", entity="Category"),
+                                        tmp_path / "a.csv")
     frame = pd.read_csv(path, encoding="utf-8-sig")
     assert list(frame["Action"]) == ["CREATE"]
     options = services.activity.filter_options()
-    assert "Category" in options["entities"] and "Admin" in options["users"]
+    assert "Category" in options["entities"] and "admin" in options["users"]
     assert dict(services.activity.action_counts())["LOGIN"] == 1
 
 

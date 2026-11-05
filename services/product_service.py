@@ -28,6 +28,8 @@ from core.logger import diff_changes, log_activity
 from core.settings_manager import SettingsManager
 from models.common import ListQuery, Page
 from models.product import Product
+from services.auth_service import AuthService
+from services.permissions import EXPORT, MANAGE_CATALOG
 from services.product_validation import ProductFormParser, ProductRepos
 from services.stock_service import StockService
 from utils.csv_export import default_export_path, write_csv
@@ -66,16 +68,19 @@ class ProductService:
         settings: Runtime settings (default reorder level).
         db: Database, used only to open atomic transactions.
         config: Configuration (units, export folder, limits).
+        auth: Session and permission checks.
     """
 
     def __init__(self, repos: ProductRepos, stock: StockService, validator: Validator,
-                 settings: SettingsManager, db: Database, config: AppConfig) -> None:
+                 settings: SettingsManager, db: Database, config: AppConfig,
+                 auth: AuthService) -> None:
         self._products = repos.products
         self._rules = ProductFormParser(repos, validator, config)
         self._stock = stock
         self._settings = settings
         self._db = db
         self._config = config
+        self._auth = auth
 
     # -- queries ------------------------------------------------------------------
     def find(self, query: ListQuery, category_id: int | None = None,
@@ -157,6 +162,7 @@ class ProductService:
         Raises:
             ValidationError: If any field is invalid or the SKU is taken.
         """
+        self._auth.require(MANAGE_CATALOG)
         product = self._rules.parse(data)
         opening = self._rules.opening_quantity(data.get("opening_quantity"))
         self._rules.ensure_unique_sku(product.sku)
@@ -182,6 +188,7 @@ class ProductService:
             NotFoundError: If the product does not exist.
             ValidationError: If any field is invalid or the SKU is taken.
         """
+        self._auth.require(MANAGE_CATALOG)
         current = self.get(product_id)
         product = self._rules.parse(data)
         product.id = product_id
@@ -202,6 +209,7 @@ class ProductService:
         Returns:
             ``"deactivated"`` (soft delete) or ``"deleted"`` (hard delete).
         """
+        self._auth.require(MANAGE_CATALOG)
         product = self.get(product_id)
         soft = self._products.has_transactions(product_id)
         with self._db.transaction():
@@ -222,6 +230,7 @@ class ProductService:
         Returns:
             The product after restoring.
         """
+        self._auth.require(MANAGE_CATALOG)
         product = self.get(product_id)
         if not product.is_active:
             with self._db.transaction():
@@ -240,6 +249,7 @@ class ProductService:
         Returns:
             The written file path.
         """
+        self._auth.require(EXPORT)
         products = self._products.list_all(active_only=not include_inactive)
         rows = [{**p.to_dict(), "stock_value": round(p.stock_value, 2), "status": p.status}
                 for p in products]

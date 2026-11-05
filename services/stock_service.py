@@ -31,7 +31,6 @@ from core.constants import (
 from core.database import Database
 from core.exceptions import NotFoundError, StockError, ValidationError
 from core.logger import get_logger, log_activity
-from core.settings_manager import SettingsManager
 from models.common import ListQuery, Page
 from models.movement import MovementResult
 from models.filters import TransactionFilter
@@ -39,6 +38,8 @@ from models.product import Product
 from models.stock_transaction import StockTransaction
 from repositories.product_repository import ProductRepository
 from repositories.stock_transaction_repository import StockTransactionRepository
+from services.auth_service import AuthService
+from services.permissions import EXPORT, RECORD_STOCK
 from utils.csv_export import default_export_path, write_csv
 from utils.date_helpers import to_timestamp
 from utils.validators import Validator
@@ -75,7 +76,7 @@ class StockService:
         products: Product repository.
         transactions: Stock transaction repository.
         validator: Field validator.
-        settings: Runtime settings (operator name).
+        auth: Signed-in user (recorded as performer) and permission checks.
         db: Database, used only to open atomic transactions.
         config: Configuration (export folder).
     """
@@ -85,14 +86,14 @@ class StockService:
         products: ProductRepository,
         transactions: StockTransactionRepository,
         validator: Validator,
-        settings: SettingsManager,
+        auth: AuthService,
         db: Database,
         config: AppConfig,
     ) -> None:
         self._products = products
         self._transactions = transactions
         self._validate = validator
-        self._settings = settings
+        self._auth = auth
         self._db = db
         self._config = config
 
@@ -115,6 +116,7 @@ class StockService:
             ValidationError: If quantity or cost is invalid.
             StockError: If the product is inactive.
         """
+        self._auth.require(RECORD_STOCK)
         product = self._active_product(product_id)
         qty = self._validate.integer(quantity, "Quantity", minimum=1)
         cost = product.unit_cost if unit_cost in (None, "") else self._validate.decimal(
@@ -139,6 +141,7 @@ class StockService:
             ValidationError: If the quantity is invalid.
             StockError: If it exceeds stock on hand or the product is inactive.
         """
+        self._auth.require(RECORD_STOCK)
         product = self._active_product(product_id)
         qty = self._validate.integer(quantity, "Quantity", minimum=1)
         if qty > product.quantity_on_hand:
@@ -162,6 +165,7 @@ class StockService:
         Raises:
             ValidationError: If the count is invalid, unchanged or has no reason.
         """
+        self._auth.require(RECORD_STOCK)
         product = self._active_product(product_id)
         counted = self._validate.integer(counted_quantity, "Counted quantity", minimum=0)
         reason = self._validate.text(note, "Reason")
@@ -194,6 +198,7 @@ class StockService:
         Returns:
             The written file path.
         """
+        self._auth.require(EXPORT)
         rows = self._transactions.list_filtered(filters)
         target = path or default_export_path(self._config.resolve_path("paths.export_dir"),
                                              "stock_transactions")
@@ -221,7 +226,7 @@ class StockService:
             product_id=move.product.id, type=move.tx_type,
             quantity=move.delta if move.tx_type == TX_ADJUST else abs(move.delta),
             unit_cost=move.unit_cost, reference_note=move.note,
-            performed_by=self._settings.get("operator_name"),
+            performed_by=self._auth.current_username(),
             created_at=to_timestamp(move.occurred_at) if move.occurred_at else "",
         )
         with self._db.transaction():

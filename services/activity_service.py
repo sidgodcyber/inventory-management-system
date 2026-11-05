@@ -15,7 +15,7 @@ Author: Siddhi Baluja (240302054)
 from __future__ import annotations
 
 import traceback
-from datetime import date, datetime
+from datetime import date
 from pathlib import Path
 
 from config.config_loader import AppConfig
@@ -23,7 +23,6 @@ from core.constants import (
     ACTION_DELETE,
     ACTION_ERROR,
     ACTION_EXPORT,
-    ACTION_LOGIN,
     ACTIONS,
     ENTITY_ACTIVITY_LOG,
     ENTITY_SYSTEM,
@@ -36,6 +35,8 @@ from models.activity_log import ActivityLog
 from models.common import ListQuery, Page
 from models.filters import ActivityFilter
 from repositories.activity_log_repository import ActivityLogRepository
+from services.auth_service import AuthService
+from services.permissions import EXPORT, PURGE_LOG, VIEW_ACTIVITY
 from utils.csv_export import default_export_path, write_csv
 from utils.date_helpers import days_ago, start_of_day
 
@@ -56,29 +57,33 @@ _log = get_logger(__name__)
 
 
 class ActivityService:
-    """Query, export and purge the audit trail; record errors and logins.
+    """Query, export and purge the audit trail; record errors.
 
     Args:
         repo: Activity-log repository.
-        settings: Runtime settings (retention days, operator role).
+        settings: Runtime settings (retention days).
         db: Database, used only to open atomic transactions.
-        config: Configuration (export folder, app version).
+        config: Configuration (export folder).
+        auth: Session and permission checks.
     """
 
     def __init__(self, repo: ActivityLogRepository, settings: SettingsManager, db: Database,
-                 config: AppConfig) -> None:
+                 config: AppConfig, auth: AuthService) -> None:
         self._repo = repo
         self._settings = settings
         self._db = db
         self._config = config
+        self._auth = auth
 
     # -- queries ------------------------------------------------------------------
     def find(self, filters: ActivityFilter, query: ListQuery) -> Page[ActivityLog]:
         """One page of filtered entries."""
+        self._auth.require(VIEW_ACTIVITY)
         return self._repo.find(filters, query)
 
     def filter_options(self) -> dict[str, list[str]]:
         """Values for the action, entity and user filter drop-downs."""
+        self._auth.require(VIEW_ACTIVITY)
         return {
             "actions": list(ACTIONS),
             "entities": self._repo.distinct_values("entity"),
@@ -100,6 +105,7 @@ class ActivityService:
 
     def expired_count(self, today: date | None = None) -> int:
         """How many entries a purge would remove (shown in the confirmation)."""
+        self._auth.require(PURGE_LOG)
         return self._repo.count_before(self.retention_cutoff(today))
 
     def purge_expired(self, today: date | None = None) -> int:
@@ -108,6 +114,7 @@ class ActivityService:
         Returns:
             Number of deleted entries.
         """
+        self._auth.require(PURGE_LOG)
         cutoff = self.retention_cutoff(today)
         with self._db.transaction():
             removed = self._repo.purge_before(cutoff)
@@ -120,6 +127,8 @@ class ActivityService:
     # -- export -------------------------------------------------------------------
     def export_csv(self, filters: ActivityFilter, path: Path | None = None) -> Path:
         """Export filtered entries to CSV and log ``EXPORT``."""
+        self._auth.require(VIEW_ACTIVITY)
+        self._auth.require(EXPORT)
         rows = [entry.to_dict() for entry in self._repo.list_filtered(filters)]
         target = path or default_export_path(self._config.resolve_path("paths.export_dir"),
                                              "activity_log")
@@ -129,14 +138,6 @@ class ActivityService:
         return target
 
     # -- events -------------------------------------------------------------------
-    def record_login(self) -> None:
-        """Log the start of a session (single-login app: operator from settings)."""
-        log_activity(ACTION_LOGIN, ENTITY_SYSTEM, None, {
-            "role": self._settings.get("operator_role"),
-            "version": self._config.get("app.version"),
-            "started_at": datetime.now().isoformat(timespec="seconds"),
-        })
-
     def record_error(self, context: str, error: BaseException,
                      entity: str = ENTITY_SYSTEM) -> None:
         """Store a caught exception as an ``ERROR`` entry. Never raises.

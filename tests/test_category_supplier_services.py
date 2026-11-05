@@ -18,7 +18,7 @@ def test_create_category_logs_create(services: AppServices, audit) -> None:
     entry = audit("CREATE")[0]
     assert category.name == "Stationery"
     assert entry.entity == "Category" and entry.entity_id == str(category.id)
-    assert entry.details["new"]["name"] == "Stationery" and entry.user == "Admin"
+    assert entry.details["new"]["name"] == "Stationery" and entry.user == "admin"
 
 
 def test_duplicate_category_name_rejected(services: AppServices) -> None:

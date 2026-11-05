@@ -51,10 +51,6 @@ SETTING_DEFINITIONS: tuple[SettingDefinition, ...] = (
                       "Log level", "Minimum level written to logs/app.log"),
     SettingDefinition("log_retention_days", "activity_log.retention_days", "int",
                       "Activity-log retention (days)", "Entries older than this can be purged"),
-    SettingDefinition("operator_name", "operator.name", "str",
-                      "Operator name", "Recorded as the user on every activity-log entry"),
-    SettingDefinition("operator_role", "operator.role", "str",
-                      "Operator role", "Admin / Store Manager / Store Staff"),
 )
 
 

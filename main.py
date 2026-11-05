@@ -6,7 +6,8 @@ Start-up sequence:
 2. Open the SQLite database and run pending schema migrations.
 3. Build services (seeds runtime settings from config on first run).
 4. Configure the rotating file log at the saved log level.
-5. Record a ``LOGIN`` activity entry and open the main window.
+5. Open the main window, which starts at the sign-in screen (each sign-in is
+   recorded as a ``LOGIN`` activity entry).
 
 Layer: entry point (composition only, no business logic)
 Author: Siddhi Baluja (240302054)
@@ -53,7 +54,6 @@ def main() -> int:
     setup_file_logging(config)
     services.settings.apply_startup()  # saved log level overrides the config default
     get_logger("main").info("Starting %s v%s", config.get("app.name"), config.get("app.version"))
-    services.activity.record_login()
 
     from ui.app import App  # imported late so config errors show before Tk loads
 
