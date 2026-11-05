@@ -40,15 +40,17 @@ Your role decides which screens and buttons you see:
 | Manage users | ✓ | | |
 
 ## Dashboard
-- **Cards:** active products, stock value at cost, low-stock count, stockouts, and inventory turnover for the configured period (90 days by default).
+The line under the title says what needs attention today. **Review reorder list** opens the product list filtered to low stock.
+
+- **Headline figures:** products needing reordering, products out of stock, stock value at cost, inventory turnover for the configured period (90 days by default) and products stocked.
+- **Stock runway:** every product at or below its reorder level, most urgent first. The bar shows how much of the reorder level is left, *Stock left* shows the days remaining at the recent rate of use, and *Order* is the minimum to order. Spare rows list the products that will reach their reorder level next.
+- **Units in and out:** daily receipts and issues over the last 30 days.
 - **Stock value by category:** where the money sits.
-- **Units in vs out:** daily receipts and issues over the last 30 days.
-- **Needs reordering:** every product at or below its reorder level, with the minimum quantity to order. **Open in Products** jumps to the product list filtered to low stock.
 
 ## Products
 - **Search** by SKU, name, category or supplier as you type. Click a column header to sort, and use **‹ Prev / Next ›** to page. Page size is a setting.
 - **Filters:** category, *Low stock only*, *Show inactive*.
-- **Colours:** red row = at or below reorder level; dark red = out of stock; grey text = deactivated.
+- **Colours:** pale red row = at or below reorder level; stronger red = out of stock; grey text = deactivated.
 - **+ Add product:** SKU (letters, digits and dashes), name, category, optional supplier, unit, cost, price, reorder level (pre-filled from settings) and optional opening stock, which is booked as a stock-in. Mistakes are shown in red inside the dialog. A price below cost saves, but shows a warning.
 - **Edit:** double-click a row or select it and press **Edit**. Quantity cannot be edited here; use the Stock screen.
 - **Delete:** a product with stock history is *deactivated* rather than deleted. Tick *Show inactive*, select it and press **Restore** to bring it back.
