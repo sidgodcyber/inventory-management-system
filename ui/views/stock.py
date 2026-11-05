@@ -20,6 +20,7 @@ from models.movement import MovementResult
 from models.product import Product
 from models.stock_transaction import StockTransaction
 from ui.components.data_table import TAG_SUCCESS, TAG_WARNING, Column, Row
+from services.permissions import EXPORT
 from ui.components.messages import show_info
 from ui.components.product_picker import product_label
 from ui.views.history_filters import HistoryFilterBar
@@ -56,7 +57,8 @@ class StockView(ListView):
         self.panel = MovementPanel(self.body, self, on_recorded=self._recorded)
         self.panel.pack(fill="x", pady=(0, 14))
         self.history_filters = HistoryFilterBar(self.body, self.theme, self._apply_filters,
-                                                self._filters_cleared, self._export)
+                                                self._filters_cleared,
+                                                self._export if self.can(EXPORT) else None)
         self.history_filters.pack(fill="x", pady=(0, 8))
 
     # -- ListView hooks -----------------------------------------------------------------

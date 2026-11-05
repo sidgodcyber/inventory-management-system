@@ -29,11 +29,11 @@ class HistoryFilterBar(ctk.CTkFrame):
         theme: Shared theme.
         on_apply: Called when Apply is pressed.
         on_clear: Called after the inputs are reset.
-        on_export: Called when Export CSV is pressed.
+        on_export: Called when Export CSV is pressed (``None`` hides the button).
     """
 
     def __init__(self, master: Any, theme: Theme, on_apply: Callable[[], None],
-                 on_clear: Callable[[], None], on_export: Callable[[], None]) -> None:
+                 on_clear: Callable[[], None], on_export: Callable[[], None] | None) -> None:
         super().__init__(master, fg_color="transparent")
         self._on_clear = on_clear
         ctk.CTkLabel(self, text="History", font=theme.font(2, "bold")).pack(side="left")
@@ -46,8 +46,9 @@ class HistoryFilterBar(ctk.CTkFrame):
         self.date_from.pack(side="left", padx=(8, 0))
         self.date_to = ctk.CTkEntry(self, width=140)
         self.date_to.pack(side="left", padx=(6, 0))
-        for text, command, kind in (("Export CSV", on_export, "secondary"),
-                                    ("Clear", self.clear, "secondary"), ("Apply", on_apply, "primary")):
+        buttons = [("Export CSV", on_export, "secondary"), ("Clear", self.clear, "secondary"),
+                   ("Apply", on_apply, "primary")]
+        for text, command, kind in (b for b in buttons if b[1] is not None):
             ctk.CTkButton(self, text=text, width=90, command=command,
                           **theme.button_style(kind)).pack(side="right", padx=(6, 0))
 

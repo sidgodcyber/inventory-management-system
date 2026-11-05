@@ -31,13 +31,14 @@ class ReorderPanel(ctk.CTkFrame):
     Args:
         master: Tab frame.
         theme: Shared theme.
-        on_export: Called when the export button is pressed.
+        on_export: Called when the export button is pressed (``None`` hides it).
     """
 
-    def __init__(self, master: Any, theme: Theme, on_export: Callable[[], None]) -> None:
+    def __init__(self, master: Any, theme: Theme, on_export: Callable[[], None] | None) -> None:
         super().__init__(master, fg_color="transparent")
-        ctk.CTkButton(self, text="Export reorder list CSV", width=180, command=on_export,
-                      **theme.button_style("secondary")).pack(anchor="e", pady=(0, 6))
+        if on_export is not None:
+            ctk.CTkButton(self, text="Export reorder list CSV", width=180, command=on_export,
+                          **theme.button_style("secondary")).pack(anchor="e", pady=(0, 6))
         self.table = DataTable(self, theme, COLUMNS, height=10)
         self.table.pack(fill="both", expand=True)
 

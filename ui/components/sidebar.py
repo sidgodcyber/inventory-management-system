@@ -61,6 +61,24 @@ class Sidebar(ctk.CTkFrame):
             button.configure(fg_color=self._theme.color("accent") if active else "transparent",
                              text_color=_ACTIVE_TEXT if active else _IDLE_TEXT)
 
+    def add_account_footer(self, text: str, on_change_password: Callable[[], None],
+                           on_sign_out: Callable[[], None]) -> None:
+        """Show who is signed in, with "Change password" and "Sign out" at the bottom.
+
+        Args:
+            text: Signed-in user and role.
+            on_change_password: Called when "Change password" is clicked.
+            on_sign_out: Called when "Sign out" is clicked.
+        """
+        footer = ctk.CTkFrame(self, fg_color="transparent")
+        footer.pack(side="bottom", fill="x", padx=12, pady=14)
+        ctk.CTkLabel(footer, text=text, font=self._theme.font(-2), justify="left", anchor="w",
+                     text_color=self._theme.color("muted")).pack(fill="x", pady=(0, 6))
+        for label, command in (("Change password", on_change_password),
+                               ("Sign out", on_sign_out)):
+            ctk.CTkButton(footer, text=label, height=28, command=command,
+                          **self._theme.button_style("secondary")).pack(fill="x", pady=2)
+
     def set_badge(self, key: str, count: int) -> None:
         """Show ``count`` in a red badge on a button (hidden when zero).
 

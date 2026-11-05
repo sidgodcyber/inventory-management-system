@@ -33,6 +33,7 @@ class FormField:
         required: Show a required marker (validation itself happens in services).
         placeholder: Hint shown in empty entries.
         hint: Small help text under the input.
+        secret: Mask the typed text (passwords).
     """
 
     key: str
@@ -42,6 +43,7 @@ class FormField:
     required: bool = False
     placeholder: str = ""
     hint: str = ""
+    secret: bool = False
 
 
 def make_input(master: Any, field: FormField, value: str, theme: Theme) -> Any:
@@ -67,7 +69,7 @@ def make_input(master: Any, field: FormField, value: str, theme: Theme) -> Any:
         widget.insert("1.0", value)
         return widget
     widget = ctk.CTkEntry(master, width=_INPUT_WIDTH, placeholder_text=field.placeholder,
-                          font=theme.font())
+                          font=theme.font(), show="•" if field.secret else "")
     if value:
         widget.insert(0, value)
     return widget

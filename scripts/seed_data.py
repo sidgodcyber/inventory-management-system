@@ -41,7 +41,11 @@ from services.container import AppServices, build_services  # noqa: E402
 
 SIMULATION_DAYS = 90
 NEGLECT_FROM_DAY = 62  # neglected products are not reordered after this day
-OPERATORS = ("Admin", "Ravi Kumar", "Asha Verma")
+# Demo accounts (username, full name, role). They must change this password at
+# first sign-in; the admin account comes from config.json (auth section).
+DEMO_PASSWORD = "Demo@1234"
+DEMO_USERS = (("ravi", "Ravi Kumar", "Store Manager"), ("asha", "Asha Verma", "Store Staff"))
+SHIFT_USERS = ("ravi", "asha")
 
 CATEGORIES = (
     ("Stationery", "Pens, notebooks, paper and office supplies"),
@@ -266,7 +270,7 @@ def simulate(services: AppServices, sims: list[SimProduct], rng: random.Random) 
     for day_no in range(1, SIMULATION_DAYS):
         day = start + timedelta(days=day_no)
         if day.weekday() == 0:  # Monday shift change, audited as SETTINGS_CHANGE
-            services.settings.save({"operator_name": OPERATORS[(day_no // 7) % len(OPERATORS)]})
+            switch_user(services, SHIFT_USERS[(day_no // 7) % len(SHIFT_USERS)])
         for sim in sims:
             receive_orders(services, sim, day_no, day, stats)
             demand = daily_demand(rng, sim.rate, day)
@@ -303,18 +307,34 @@ def main(argv: list[str] | None = None) -> int:
     setup_file_logging(config, level="ERROR")  # keep app.log quiet while bulk-seeding
     db = prepare_database(config, args.reset)
     services = build_services(config, db)
+    services.auth.login(config.get("auth.initial_admin_username"),
+                        config.get("auth.initial_admin_password"))
     if services.products.find(ListQuery()).total:
         print("Database already contains products. Use --reset to re-seed.")
         return 1
     rng = random.Random(args.seed)
     with db.transaction():  # one commit for the whole seed (fast, all-or-nothing)
+        create_demo_users(services)
         sims = create_master_data(services, rng)
         mistakes = record_sample_mistakes(services)
         stats = simulate(services, sims, rng)
-        services.settings.save({"operator_name": config.get("operator.name")})
+        services.auth.logout()
     print_summary(services, stats, mistakes, db.path)
     db.close()
     return 0
+
+
+def create_demo_users(services: AppServices) -> None:
+    """Create the demo Store Manager and Store Staff accounts (as the admin)."""
+    for username, full_name, role in DEMO_USERS:
+        services.users.create({"username": username, "full_name": full_name, "role": role,
+                               "password": DEMO_PASSWORD})
+
+
+def switch_user(services: AppServices, username: str) -> None:
+    """Weekly shift change: the next operator signs in (recorded as LOGIN)."""
+    services.auth.logout()
+    services.auth.login(username, DEMO_PASSWORD)
 
 
 def print_summary(services: AppServices, stats: Stats, mistakes: int, db_path: str) -> None:
@@ -326,6 +346,8 @@ def print_summary(services: AppServices, stats: Stats, mistakes: int, db_path: s
           f"products: {len(PRODUCTS)}")
     print(f"  stock in: {stats.ins}, stock out: {stats.outs}, adjustments: {stats.adjustments}")
     print(f"  over-issue attempts logged: {stats.errors}, input mistakes logged: {mistakes}")
+    print("  sign in as admin (config.json initial password) or "
+          + ", ".join(u for u, _, _ in DEMO_USERS) + f" / {DEMO_PASSWORD}; each must set a new password")
     print(f"  stock value: {symbol}{dashboard.total_stock_value:,.2f}, "
           f"low stock: {dashboard.low_stock_count}, stockouts: {dashboard.stockout_count}, "
           f"turnover ({dashboard.period_days} d): {dashboard.turnover:.2f}x")

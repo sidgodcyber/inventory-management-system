@@ -17,6 +17,7 @@ from pathlib import Path
 import customtkinter as ctk
 
 from models.reports import TurnoverRow
+from services.permissions import EXPORT
 from ui.components.messages import show_info
 from ui.views.base_view import BaseView
 from ui.views.report_period import PeriodBar
@@ -43,9 +44,10 @@ class ReportsView(BaseView):
         tabs.pack(fill="both", expand=True)
         self.turnover = TurnoverPanel(tabs.add("Inventory turnover"), self.theme, self.money,
                                       cfg.get("inventory.days_of_stock_warning"),
-                                      self._export_turnover)
+                                      self._export_turnover if self.can(EXPORT) else None)
         self.turnover.pack(fill="both", expand=True)
-        self.reorder = ReorderPanel(tabs.add("Reorder list"), self.theme, self._export_low)
+        self.reorder = ReorderPanel(tabs.add("Reorder list"), self.theme,
+                                    self._export_low if self.can(EXPORT) else None)
         self.reorder.pack(fill="both", expand=True)
 
     def on_show(self) -> None:

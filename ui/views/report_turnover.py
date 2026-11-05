@@ -34,18 +34,19 @@ class TurnoverPanel(ctk.CTkFrame):
         theme: Shared theme.
         money: Formats an amount with the configured currency.
         warn_days: Days-of-stock threshold for amber highlighting (from config).
-        on_export: Called when the export button is pressed.
+        on_export: Called when the export button is pressed (``None`` hides it).
     """
 
     def __init__(self, master: Any, theme: Theme, money: Callable[[float], str], warn_days: int,
-                 on_export: Callable[[], None]) -> None:
+                 on_export: Callable[[], None] | None) -> None:
         super().__init__(master, fg_color="transparent")
         self._money = money
         self._warn_days = warn_days
         self._rows: list[TurnoverRow] = []
         self._sort = ("turnover", True)
-        ctk.CTkButton(self, text="Export turnover CSV", width=160, command=on_export,
-                      **theme.button_style("secondary")).pack(anchor="e", pady=(0, 6))
+        if on_export is not None:
+            ctk.CTkButton(self, text="Export turnover CSV", width=160, command=on_export,
+                          **theme.button_style("secondary")).pack(anchor="e", pady=(0, 6))
         self.table = DataTable(self, theme, COLUMNS, on_sort=self._sorted, height=10)
         self.table.pack(fill="both", expand=True)
         self.table.mark_sorted(*self._sort)

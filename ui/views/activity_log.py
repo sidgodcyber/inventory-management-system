@@ -15,6 +15,7 @@ from datetime import date
 from models.activity_log import ActivityLog
 from models.common import ListQuery, Page
 from models.filters import ActivityFilter
+from services.permissions import EXPORT, PURGE_LOG
 from ui.components.confirm_dialog import ask_confirm
 from ui.components.data_table import TAG_ERROR, TAG_WARNING, Column, Row
 from ui.components.messages import show_info
@@ -55,8 +56,10 @@ class ActivityLogView(ListView):
     def build_above_table(self) -> None:
         """Search toolbar with export/purge, then the filter row."""
         self.toolbar = self.make_toolbar("Search details or record ID…")
-        self.toolbar.add_button("Purge old entries", self._purge, "danger", width=140)
-        self.toolbar.add_button("Export CSV", self._export, "secondary", width=100)
+        if self.can(PURGE_LOG):
+            self.toolbar.add_button("Purge old entries", self._purge, "danger", width=140)
+        if self.can(EXPORT):
+            self.toolbar.add_button("Export CSV", self._export, "secondary", width=100)
         self.filter_bar = ActivityFilterBar(self.body, self.theme, self._apply, self._cleared)
         self.filter_bar.pack(fill="x", pady=(0, 8))
 

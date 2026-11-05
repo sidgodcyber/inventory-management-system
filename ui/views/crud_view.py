@@ -15,6 +15,7 @@ from typing import Any
 import customtkinter as ctk
 
 from ui.components.confirm_dialog import ask_confirm
+from services.permissions import MANAGE_CATALOG
 from ui.components.form_dialog import FormDialog, FormField
 from ui.views.list_view import ListView
 
@@ -30,6 +31,8 @@ class CrudView(ListView):
     entity: str = "Item"
     #: Search box hint.
     search_hint: str = "Search…"
+    #: Permission needed to add, edit or delete (the list itself stays visible).
+    manage_permission: str = MANAGE_CATALOG
 
     def build_above_table(self) -> None:
         """Toolbar with search and actions, then an optional filter row."""
@@ -41,7 +44,9 @@ class CrudView(ListView):
             filters.pack(fill="x", pady=(0, 10))
 
     def add_buttons(self) -> None:
-        """Default toolbar buttons (packed right to left); override to add more."""
+        """Default toolbar buttons (packed right to left), only for roles that may edit."""
+        if not self.can(self.manage_permission):
+            return
         self.toolbar.add_button("Delete", self._delete_selected, "danger", width=90)
         self.toolbar.add_button("Edit", self._edit_selected, "secondary", width=80)
         self.toolbar.add_button(f"+ Add {self.entity.lower()}", self._add, width=140)
@@ -119,12 +124,13 @@ class CrudView(ListView):
         self.notify(f"{self.entity} saved.", "success")
 
     def on_activate(self, row_id: str) -> None:
-        """Double-click / Enter opens the edit form.
+        """Double-click / Enter opens the edit form (for roles that may edit).
 
         Args:
             row_id: Identifier of the activated row.
         """
-        self._edit_row(row_id)
+        if self.can(self.manage_permission):
+            self._edit_row(row_id)
 
     # -- flows ------------------------------------------------------------------------
     def _add(self) -> None:

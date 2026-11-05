@@ -80,6 +80,17 @@ class BaseView(ctk.CTkFrame):
         """Current value of a runtime setting."""
         return self.services.settings.get(key)
 
+    def can(self, permission: str) -> bool:
+        """Whether the signed-in user may do something (hides buttons they cannot use).
+
+        Args:
+            permission: A name from :mod:`services.permissions`.
+
+        Returns:
+            ``True`` when the user's role grants it.
+        """
+        return self.services.auth.has(permission)
+
     def money(self, amount: float | None) -> str:
         """Format money with the configured currency symbol."""
         return format_currency(amount, self.setting("currency_symbol"))

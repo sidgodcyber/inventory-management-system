@@ -17,6 +17,7 @@ import customtkinter as ctk
 
 from models.common import ListQuery, Page
 from models.product import Product
+from services.permissions import EXPORT, MANAGE_CATALOG
 from services.product_service import SaveResult
 from ui.components.data_table import TAG_INACTIVE, TAG_LOW, TAG_STOCKOUT, Column, Row
 from ui.components.form_dialog import FormField
@@ -52,9 +53,11 @@ class ProductsView(CrudView):
         super().build()
 
     def add_buttons(self) -> None:
-        """Export and restore in addition to add/edit/delete."""
-        self.toolbar.add_button("Export CSV", self._export, "secondary", width=100)
-        self.toolbar.add_button("Restore", self._restore, "secondary", width=80)
+        """Export and restore in addition to add/edit/delete, each only if permitted."""
+        if self.can(EXPORT):
+            self.toolbar.add_button("Export CSV", self._export, "secondary", width=100)
+        if self.can(MANAGE_CATALOG):
+            self.toolbar.add_button("Restore", self._restore, "secondary", width=80)
         super().add_buttons()
 
     def build_filters(self, frame: Any) -> None:
