@@ -52,6 +52,14 @@ ENTITY_STOCK = "StockTransaction"
 ENTITY_SETTING = "Setting"
 ENTITY_ACTIVITY_LOG = "ActivityLog"
 ENTITY_SYSTEM = "System"
+ENTITY_USER = "User"
+
+# User roles, most privileged first. What each role may do is defined in
+# services/permissions.py.
+ROLE_ADMIN = "Admin"
+ROLE_MANAGER = "Store Manager"
+ROLE_STAFF = "Store Staff"
+ROLES: tuple[str, ...] = (ROLE_ADMIN, ROLE_MANAGER, ROLE_STAFF)
 
 # Standard Python logging level names accepted by config and settings.
 LOG_LEVELS: tuple[str, ...] = ("DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL")

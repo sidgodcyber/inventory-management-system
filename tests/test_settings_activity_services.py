@@ -15,6 +15,7 @@ import pytest
 
 from config.config_loader import AppConfig
 from core.exceptions import StockError, ValidationError
+from core.schema import MIGRATIONS
 from core.logger import APP_LOGGER_NAME, log_activity
 from models.common import ListQuery
 from models.filters import ActivityFilter
@@ -141,4 +142,4 @@ def test_module_inventory_covers_every_layer(services: AppServices) -> None:
     layers = {m.layer for m in modules}
     assert {"Business", "Data access", "Infrastructure"} <= layers
     assert all(m.summary != "(no docstring)" for m in modules)
-    assert services.system.app_info()["Schema version"] == "1"
+    assert services.system.app_info()["Schema version"] == str(max(MIGRATIONS))

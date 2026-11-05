@@ -62,6 +62,11 @@ SCHEMA: dict[str, type | tuple[type, ...]] = {
     "operator.name": str,
     "operator.role": str,
     "operator.roles": list,
+    "auth.initial_admin_username": str,
+    "auth.initial_admin_full_name": str,
+    "auth.initial_admin_password": str,
+    "auth.min_password_length": int,
+    "auth.pbkdf2_iterations": int,
     "validation.page_size_min": int,
     "validation.page_size_max": int,
     "validation.retention_days_min": int,
@@ -84,6 +89,8 @@ CHOICES: dict[str, tuple[str, ...]] = {
 
 # Integer keys that must be strictly positive.
 POSITIVE_INTS: tuple[str, ...] = (
+    "auth.min_password_length",
+    "auth.pbkdf2_iterations",
     "logging.max_bytes",
     "ui.window_width",
     "ui.window_height",

@@ -11,7 +11,7 @@ Author: Siddhi Baluja (240302054)
 
 from __future__ import annotations
 
-from core.constants import ACTIONS, LOG_LEVELS, TRANSACTION_TYPES, VALUE_TYPES
+from core.constants import ACTIONS, LOG_LEVELS, ROLES, TRANSACTION_TYPES, VALUE_TYPES
 
 
 def _sql_list(values: tuple[str, ...]) -> str:
@@ -103,5 +103,24 @@ SCHEMA_V1: list[str] = [
     "CREATE INDEX IF NOT EXISTS idx_activity_entity ON activity_log(entity)",
 ]
 
+# Version 2: user accounts for login and role-based permissions. The old
+# free-text operator settings are removed because the signed-in user replaces them.
+SCHEMA_V2: list[str] = [
+    f"""
+    CREATE TABLE IF NOT EXISTS users (
+        id                   INTEGER PRIMARY KEY AUTOINCREMENT,
+        username             TEXT    NOT NULL UNIQUE COLLATE NOCASE,
+        full_name            TEXT    NOT NULL,
+        role                 TEXT    NOT NULL CHECK (role IN ({_sql_list(ROLES)})),
+        password_hash        TEXT    NOT NULL,
+        must_change_password INTEGER NOT NULL DEFAULT 0 CHECK (must_change_password IN (0, 1)),
+        is_active            INTEGER NOT NULL DEFAULT 1 CHECK (is_active IN (0, 1)),
+        last_login_at        TEXT,
+        created_at           TEXT    NOT NULL DEFAULT {_NOW},
+        updated_at           TEXT    NOT NULL DEFAULT {_NOW}
+    )""",
+    "DELETE FROM settings WHERE key IN ('operator_name', 'operator_role')",
+]
+
 # Ordered schema migrations: version number -> statements that reach it.
-MIGRATIONS: dict[int, list[str]] = {1: SCHEMA_V1}
+MIGRATIONS: dict[int, list[str]] = {1: SCHEMA_V1, 2: SCHEMA_V2}

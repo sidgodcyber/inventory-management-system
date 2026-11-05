@@ -97,6 +97,13 @@
     "role": "Admin",
     "roles": ["Admin", "Store Manager", "Store Staff"]
   },
+  "auth": {
+    "initial_admin_username": "admin",
+    "initial_admin_full_name": "Administrator",
+    "initial_admin_password": "ChangeMe@123",
+    "min_password_length": 8,
+    "pbkdf2_iterations": 200000
+  },
   "validation": {
     "page_size_min": 5,
     "page_size_max": 100,
