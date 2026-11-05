@@ -53,7 +53,12 @@ class LoginView(ctk.CTkFrame):
         self.error.pack(padx=40, pady=(6, 0))
         ctk.CTkButton(card, text="Sign in", width=280, command=self.submit).pack(
             padx=40, pady=(10, 32))
-        self.after(150, self.username.focus_set)
+        self.after(150, self._focus_username)
+
+    def _focus_username(self) -> None:
+        """Put the cursor in the username box, unless the form has already closed."""
+        if self.winfo_exists():
+            self.username.focus_set()
 
     def submit(self) -> None:
         """Try to sign in; show a friendly message on failure."""
