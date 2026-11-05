@@ -32,20 +32,20 @@ class ActivityFilterBar(ctk.CTkFrame):
                  on_clear: Callable[[], None]) -> None:
         super().__init__(master, fg_color="transparent")
         self._on_clear = on_clear
-        self.date_from = ctk.CTkEntry(self, width=130)
-        self.date_to = ctk.CTkEntry(self, width=130)
-        self.action = ctk.CTkOptionMenu(self, values=[ANY], width=145)
-        self.entity = ctk.CTkOptionMenu(self, values=[ANY], width=130)
-        self.user = ctk.CTkOptionMenu(self, values=[ANY], width=120)
+        self.date_from = ctk.CTkEntry(self, height=theme.control_height, width=130)
+        self.date_to = ctk.CTkEntry(self, height=theme.control_height, width=130)
+        self.action = ctk.CTkOptionMenu(self, height=theme.control_height, values=[ANY], width=145)
+        self.entity = ctk.CTkOptionMenu(self, height=theme.control_height, values=[ANY], width=130)
+        self.user = ctk.CTkOptionMenu(self, height=theme.control_height, values=[ANY], width=120)
         for label, widget in (("From", self.date_from), ("To", self.date_to),
                               ("Action", self.action), ("Entity", self.entity),
                               ("User", self.user)):
             ctk.CTkLabel(self, text=label, font=theme.font(-1)).pack(side="left", padx=(0, 4))
             widget.pack(side="left", padx=(0, 10))
-        ctk.CTkButton(self, text="Clear", width=70, command=self.clear,
+        ctk.CTkButton(self, height=theme.control_height, text="Clear", width=70, command=self.clear,
                       **theme.button_style("secondary")).pack(side="right")
-        ctk.CTkButton(self, text="Apply", width=70, command=on_apply).pack(side="right",
-                                                                          padx=(0, 6))
+        ctk.CTkButton(self, height=theme.control_height, text="Apply", width=70, command=on_apply,
+                      **theme.button_style("secondary")).pack(side="right", padx=(0, 6))
 
     def set_options(self, options: dict[str, list[str]], example_date: str) -> None:
         """Fill the drop-downs and show an example date.

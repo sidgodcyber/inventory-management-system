@@ -1,8 +1,8 @@
 """Status bar with transient toast messages and permanent session info.
 
 The left side shows short-lived feedback ("Product saved", warnings). The
-right side shows operator name and role, database path and app version, all
-taken from config/settings by the caller.
+right side shows the signed-in user and role, database path and app version,
+all supplied by the caller.
 
 Layer: ui/components
 Author: Siddhi Baluja
@@ -17,7 +17,7 @@ import customtkinter as ctk
 from ui.theme import Theme
 
 # Toast kinds mapped to palette colour names.
-_KIND_COLORS = {"success": "success", "warning": "warning", "error": "danger", "info": "accent"}
+_KIND_COLORS = {"success": "success", "warning": "warning", "error": "danger", "info": "muted"}
 
 
 class StatusBar(ctk.CTkFrame):
@@ -30,7 +30,7 @@ class StatusBar(ctk.CTkFrame):
     """
 
     def __init__(self, master: Any, theme: Theme, toast_ms: int) -> None:
-        super().__init__(master, height=30, corner_radius=0)
+        super().__init__(master, height=30, corner_radius=0, fg_color=theme.pair("ground"))
         self._theme = theme
         self._toast_ms = toast_ms
         self._job: str | None = None
@@ -51,7 +51,7 @@ class StatusBar(ctk.CTkFrame):
             text: Message to show.
             kind: ``info``, ``success``, ``warning`` or ``error``.
         """
-        color = self._theme.color(_KIND_COLORS.get(kind, "accent"))
+        color = self._theme.color(_KIND_COLORS.get(kind, "muted"))
         self._message.configure(text=f"●  {text}", text_color=color)
         if self._job is not None:
             self.after_cancel(self._job)

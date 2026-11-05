@@ -1,6 +1,6 @@
 # Quality report: maintainability evidence
 
-Generated 2026-11-05 18:31 by `scripts/quality_report.py` (radon CC + MI, docstring coverage). **Do not edit by hand.**
+Generated 2026-11-05 18:46 by `scripts/quality_report.py` (radon CC + MI, docstring coverage). **Do not edit by hand.**
 
 Scope: QO6 is judged on the application (`config`, `core`, `models`, `repositories`, `services`, `ui`, `utils`, `main.py`). Developer tooling in `scripts/` is listed for information; QO5 covers both.
 
@@ -8,12 +8,12 @@ Scope: QO6 is judged on the application (`config`, `core`, `models`, `repositori
 
 | Objective | Measure | Target | Result | Verdict |
 |-----------|---------|--------|--------|---------|
-| QO6 | Average cyclomatic complexity | ≤ 5 (grade A) | 1.95 (grade A) | ✅ PASS |
-| QO6 | Maintainability index, every file | ≥ 65 | min 65.2, avg 81.4 | ✅ PASS |
+| QO6 | Average cyclomatic complexity | ≤ 5 (grade A) | 1.97 (grade A) | ✅ PASS |
+| QO6 | Maintainability index, every file | ≥ 65 | min 65.1, avg 81.4 | ✅ PASS |
 | QO5 | Docstrings + type hints | 100% | 100.0% (lowest category) | ✅ PASS |
-| QO7 | pytest (repositories, services, utils, config, core) | all pass | 180 passed in 33.02s | ✅ PASS |
+| QO7 | pytest (repositories, services, utils, config, core) | all pass | 186 passed in 14.07s | ✅ PASS |
 
-Files analysed: 104 · functions/methods: 591 · lines: 10,212
+Files analysed: 106 · functions/methods: 606 · lines: 10,554
 
 ## QO6: Complexity and maintainability per application file
 
@@ -21,7 +21,7 @@ Files analysed: 104 · functions/methods: 591 · lines: 10,212
 |------|------:|------:|-------:|---------------------|---:|:-------:|
 | `config/__init__.py` | 5 | 0 | 0.00 | - (0) | 100.0 | A |
 | `config/config_loader.py` | 139 | 8 | 1.88 | _read_json (3) | 71.9 | A |
-| `config/schema.py` | 110 | 0 | 0.00 | - (0) | 90.2 | A |
+| `config/schema.py` | 112 | 0 | 0.00 | - (0) | 90.0 | A |
 | `config/validation.py` | 128 | 7 | 4.86 | value_errors (8) | 69.0 | A |
 | `core/__init__.py` | 5 | 0 | 0.00 | - (0) | 100.0 | A |
 | `core/constants.py` | 76 | 0 | 0.00 | - (0) | 100.0 | A |
@@ -61,7 +61,7 @@ Files analysed: 104 · functions/methods: 591 · lines: 10,212
 | `services/permissions.py` | 61 | 1 | 1.00 | permissions_for (1) | 93.9 | A |
 | `services/product_service.py` | 260 | 12 | 1.67 | ProductService.delete (3) | 69.2 | A |
 | `services/product_validation.py` | 148 | 8 | 2.12 | ProductFormParser.ensure_unique_sku (4) | 73.7 | A |
-| `services/report_service.py` | 203 | 12 | 1.67 | ReportService._turnover_frame (3) | 69.1 | A |
+| `services/report_service.py` | 216 | 13 | 1.69 | ReportService._turnover_frame (3) | 67.9 | A |
 | `services/settings_service.py` | 165 | 16 | 1.44 | SettingsService.save (5) | 69.0 | A |
 | `services/stock_service.py` | 249 | 9 | 2.22 | StockService._apply (4) | 65.4 | A |
 | `services/supplier_service.py` | 129 | 9 | 1.44 | _audit (2) | 81.3 | A |
@@ -69,52 +69,54 @@ Files analysed: 104 · functions/methods: 591 · lines: 10,212
 | `services/turnover.py` | 149 | 7 | 1.86 | to_rows (3) | 72.4 | A |
 | `services/user_service.py` | 170 | 8 | 2.50 | UserService.set_active (6) | 68.4 | A |
 | `ui/__init__.py` | 5 | 0 | 0.00 | - (0) | 100.0 | A |
-| `ui/app.py` | 206 | 15 | 1.60 | App._on_setting_changed (4) | 65.2 | A |
+| `ui/app.py` | 207 | 15 | 1.60 | App._on_setting_changed (4) | 65.1 | A |
 | `ui/components/__init__.py` | 5 | 0 | 0.00 | - (0) | 100.0 | A |
 | `ui/components/chart_panel.py` | 95 | 5 | 1.80 | ChartPanel._style (4) | 77.7 | A |
 | `ui/components/confirm_dialog.py` | 74 | 4 | 1.25 | ConfirmDialog.__init__ (2) | 100.0 | A |
-| `ui/components/data_table.py` | 173 | 11 | 2.64 | DataTable.__init__ (4) | 66.1 | A |
+| `ui/components/data_table.py` | 174 | 11 | 2.64 | DataTable.__init__ (4) | 66.0 | A |
 | `ui/components/form_dialog.py` | 126 | 7 | 2.14 | FormDialog._add_field (4) | 70.5 | A |
 | `ui/components/form_fields.py` | 89 | 2 | 4.50 | make_input (7) | 78.5 | A |
 | `ui/components/messages.py` | 32 | 3 | 1.00 | show_warning (1) | 100.0 | A |
-| `ui/components/pager.py` | 52 | 2 | 2.50 | Pager.update_page (4) | 82.8 | A |
+| `ui/components/pager.py` | 54 | 2 | 2.50 | Pager.update_page (4) | 82.7 | A |
 | `ui/components/product_picker.py` | 94 | 5 | 3.00 | ProductPicker.set_products (6) | 77.4 | A |
-| `ui/components/sidebar.py` | 98 | 5 | 2.40 | Sidebar.highlight (4) | 78.3 | A |
-| `ui/components/stat_card.py` | 47 | 2 | 1.50 | StatCard.set (2) | 92.0 | A |
+| `ui/components/sidebar.py` | 130 | 7 | 2.00 | Sidebar.highlight (3) | 75.3 | A |
+| `ui/components/stat_card.py` | 51 | 2 | 1.50 | StatCard.__init__ (2) | 90.3 | A |
 | `ui/components/status_bar.py` | 63 | 4 | 1.25 | StatusBar.show (2) | 84.6 | A |
 | `ui/components/table_types.py` | 40 | 0 | 0.00 | - (0) | 100.0 | A |
 | `ui/components/toolbar.py` | 75 | 5 | 1.60 | Toolbar.__init__ (2) | 82.4 | A |
 | `ui/components/window_utils.py` | 44 | 2 | 1.00 | fit_to_screen (1) | 82.9 | A |
 | `ui/navigation.py` | 57 | 0 | 0.00 | - (0) | 92.8 | A |
 | `ui/session.py` | 95 | 5 | 2.60 | allowed_screens (4) | 78.1 | A |
-| `ui/theme.py` | 135 | 14 | 1.50 | Theme.button_style (3) | 67.7 | A |
+| `ui/theme.py` | 164 | 15 | 1.53 | Theme.font (3) | 66.7 | A |
 | `ui/views/__init__.py` | 5 | 0 | 0.00 | - (0) | 100.0 | A |
-| `ui/views/about.py` | 104 | 6 | 2.00 | AboutView.refresh (5) | 66.9 | A |
+| `ui/views/about.py` | 104 | 6 | 2.00 | AboutView.refresh (5) | 66.2 | A |
 | `ui/views/activity_details.py` | 45 | 2 | 2.00 | ActivityDetails.show (3) | 90.4 | A |
 | `ui/views/activity_filters.py` | 90 | 4 | 2.00 | ActivityFilterBar.clear (3) | 84.6 | A |
 | `ui/views/activity_log.py` | 160 | 12 | 2.00 | ActivityLogView._purge (5) | 65.7 | A |
 | `ui/views/activity_summary.py` | 40 | 2 | 5.50 | summarize (8) | 85.6 | A |
-| `ui/views/base_view.py` | 154 | 14 | 1.50 | BaseView.form_call (4) | 74.2 | A |
+| `ui/views/base_view.py` | 167 | 15 | 1.47 | BaseView.form_call (4) | 74.5 | A |
 | `ui/views/categories.py` | 62 | 6 | 1.17 | CategoriesView.save (2) | 78.2 | A |
 | `ui/views/change_password.py` | 52 | 1 | 3.00 | ask_new_password (3) | 100.0 | A |
 | `ui/views/crud_view.py` | 189 | 17 | 1.71 | CrudView._delete_selected (4) | 67.5 | A |
-| `ui/views/dashboard.py` | 102 | 5 | 2.40 | DashboardView.refresh (6) | 68.5 | A |
-| `ui/views/dashboard_cards.py` | 61 | 2 | 3.00 | KpiCards.__init__ (3) | 90.8 | A |
-| `ui/views/dashboard_charts.py` | 91 | 4 | 2.75 | draw_value_bars (5) | 78.9 | A |
+| `ui/views/dashboard.py` | 98 | 4 | 3.00 | DashboardView.refresh (7) | 71.1 | A |
+| `ui/views/dashboard_cards.py` | 65 | 2 | 3.00 | KpiCards.__init__ (3) | 84.0 | A |
+| `ui/views/dashboard_charts.py` | 94 | 4 | 2.75 | draw_value_bars (5) | 78.2 | A |
+| `ui/views/dashboard_runway.py` | 160 | 9 | 3.00 | StockRunway._row (8) | 69.1 | A |
 | `ui/views/history_filters.py` | 100 | 5 | 2.20 | HistoryFilterBar.__init__ (4) | 82.6 | A |
 | `ui/views/list_view.py` | 140 | 14 | 1.14 | ListView.load_page (3) | 80.4 | A |
-| `ui/views/login.py` | 75 | 3 | 2.33 | LoginView.submit (3) | 83.5 | A |
+| `ui/views/login.py` | 77 | 3 | 2.33 | LoginView.submit (3) | 82.8 | A |
 | `ui/views/product_form.py` | 91 | 5 | 2.00 | ProductForm.load_lookups (3) | 84.7 | A |
 | `ui/views/products.py` | 199 | 16 | 1.88 | _tags (4) | 65.6 | A |
-| `ui/views/report_period.py` | 90 | 6 | 2.17 | PeriodBar.read (4) | 76.1 | A |
+| `ui/views/report_period.py` | 92 | 6 | 2.17 | PeriodBar.read (4) | 76.1 | A |
 | `ui/views/report_reorder.py` | 59 | 3 | 2.33 | _row (3) | 89.1 | A |
 | `ui/views/report_turnover.py` | 81 | 4 | 3.25 | TurnoverPanel.show (6) | 76.6 | A |
-| `ui/views/reports.py` | 117 | 8 | 2.50 | ReportsView.refresh (5) | 70.5 | A |
+| `ui/views/reports.py` | 118 | 8 | 2.50 | ReportsView.refresh (5) | 70.4 | A |
 | `ui/views/settings.py` | 159 | 10 | 2.30 | SettingsView._make_input (4) | 71.1 | A |
 | `ui/views/stock.py` | 137 | 10 | 1.60 | StockView._load_products (3) | 73.0 | A |
 | `ui/views/stock_movement.py` | 108 | 5 | 3.00 | MovementPanel._movement_changed (4) | 71.7 | A |
 | `ui/views/suppliers.py` | 67 | 6 | 1.17 | SuppliersView.save (2) | 77.5 | A |
 | `ui/views/users.py` | 129 | 9 | 2.56 | UsersView._toggle_active (7) | 66.1 | A |
+| `ui/widget_theme.py` | 77 | 2 | 1.50 | install_widget_theme (2) | 100.0 | A |
 | `utils/__init__.py` | 5 | 0 | 0.00 | - (0) | 100.0 | A |
 | `utils/csv_export.py` | 42 | 2 | 3.00 | write_csv (5) | 93.0 | A |
 | `utils/date_helpers.py` | 95 | 10 | 1.70 | is_valid_strftime (4) | 76.8 | A |
@@ -143,11 +145,11 @@ None: no function above CC 10 and every file has MI ≥ 65.
 
 | Item | Documented | Total | Coverage |
 |------|-----------:|------:|---------:|
-| Modules (header docstring) | 107 | 107 | 100.0% |
-| Classes | 97 | 97 | 100.0% |
-| Public functions & methods | 473 | 473 | 100.0% |
-| Functions fully type-hinted | 632 | 632 | 100.0% |
+| Modules (header docstring) | 109 | 109 | 100.0% |
+| Classes | 98 | 98 | 100.0% |
+| Public functions & methods | 484 | 484 | 100.0% |
+| Functions fully type-hinted | 647 | 647 | 100.0% |
 
-Files analysed: 107. Gaps found: 0.
+Files analysed: 109. Gaps found: 0.
 
 <!-- DOC_COVERAGE:END -->

@@ -92,9 +92,9 @@ class FormDialog(ctk.CTkToplevel):
         """Primary and cancel buttons."""
         buttons = ctk.CTkFrame(frame, fg_color="transparent")
         buttons.grid(row=row, column=0, columnspan=2, sticky="e", pady=(16, 0))
-        ctk.CTkButton(buttons, text="Cancel", width=100, command=self.destroy,
+        ctk.CTkButton(buttons, height=self._theme.control_height, text="Cancel", width=100, command=self.destroy,
                       **self._theme.button_style("secondary")).pack(side="right")
-        ctk.CTkButton(buttons, text=submit_text, width=120,
+        ctk.CTkButton(buttons, height=self._theme.control_height, text=submit_text, width=120,
                       command=self._submit).pack(side="right", padx=(0, 8))
         self.bind("<Control-Return>", lambda _e: self._submit())
 

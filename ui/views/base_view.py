@@ -69,11 +69,24 @@ class BaseView(ctk.CTkFrame):
         """Title and subtitle at the top of the screen."""
         header = ctk.CTkFrame(self, fg_color="transparent")
         header.pack(fill="x", pady=(0, 12))
-        ctk.CTkLabel(header, text=self.title, font=self.theme.heading_font(),
+        self.header_actions = ctk.CTkFrame(header, fg_color="transparent", width=1, height=1)
+        self.header_actions.pack(side="right", anchor="n")
+        text = ctk.CTkFrame(header, fg_color="transparent")
+        text.pack(side="left", fill="x", expand=True)
+        ctk.CTkLabel(text, text=self.title, height=32, font=self.theme.heading_font(),
                      anchor="w").pack(fill="x")
+        self._subtitle = ctk.CTkLabel(text, text=self.subtitle, font=self.theme.font(),
+                                      text_color=self.theme.color("muted"), anchor="w")
         if self.subtitle:
-            ctk.CTkLabel(header, text=self.subtitle, font=self.theme.font(-1),
-                         text_color=self.theme.color("muted"), anchor="w").pack(fill="x")
+            self._subtitle.pack(fill="x")
+
+    def set_subtitle(self, text: str) -> None:
+        """Replace the line under the title (a screen's finding changes with its data).
+
+        Args:
+            text: New subtitle.
+        """
+        self._subtitle.configure(text=text)
 
     # -- settings-aware formatting ------------------------------------------------------
     def setting(self, key: str) -> Any:

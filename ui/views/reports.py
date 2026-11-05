@@ -36,11 +36,12 @@ class ReportsView(BaseView):
     def build(self) -> None:
         """Period bar, summary line and the two report tabs."""
         cfg = self.services.config
-        self.period_bar = PeriodBar(self.body, cfg.get("inventory.report_periods"), self.refresh)
+        self.period_bar = PeriodBar(self.body, cfg.get("inventory.report_periods"), self.refresh,
+                                    self.theme.control_height)
         self.period_bar.pack(fill="x", pady=(0, 8))
         self.summary = ctk.CTkLabel(self.body, text="", font=self.theme.font(1), anchor="w")
         self.summary.pack(fill="x", pady=(0, 6))
-        tabs = ctk.CTkTabview(self.body)
+        tabs = ctk.CTkTabview(self.body, border_width=1, border_color=self.theme.pair("border"))
         tabs.pack(fill="both", expand=True)
         self.turnover = TurnoverPanel(tabs.add("Inventory turnover"), self.theme, self.money,
                                       cfg.get("inventory.days_of_stock_warning"),

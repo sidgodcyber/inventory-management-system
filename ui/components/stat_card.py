@@ -1,4 +1,7 @@
-"""Dashboard stat card: a title, a big number and a caption.
+"""One figure in a divided strip: a label, a number and a caption.
+
+KPIs are type, not tiles: no icon, no sparkline and no tinted background. Cells
+sit side by side in one container split by 1px dividers.
 
 Layer: ui/components
 Author: Siddhi Baluja
@@ -14,34 +17,35 @@ from ui.theme import Theme
 
 
 class StatCard(ctk.CTkFrame):
-    """A compact KPI tile.
+    """A KPI cell.
 
     Args:
         master: Parent widget.
         theme: Shared theme.
         title: Label above the value.
-        accent: Palette colour name for the left accent strip.
+        lead: The screen's answer figure, set larger and heavier than its siblings.
     """
 
-    def __init__(self, master: Any, theme: Theme, title: str, accent: str = "accent") -> None:
-        super().__init__(master, corner_radius=10)
+    def __init__(self, master: Any, theme: Theme, title: str, lead: bool = False) -> None:
+        super().__init__(master, fg_color="transparent")
         self._theme = theme
-        self._strip = ctk.CTkFrame(self, width=5, height=10, corner_radius=3,
-                                   fg_color=theme.color(accent))
-        self._strip.pack(side="left", fill="y", padx=(8, 0), pady=10)
-        body = ctk.CTkFrame(self, fg_color="transparent")
-        body.pack(side="left", fill="both", expand=True, padx=12, pady=10)
-        ctk.CTkLabel(body, text=title, font=theme.font(-1),
-                     text_color=theme.color("muted"), anchor="w").pack(fill="x")
-        self._value = ctk.CTkLabel(body, text="–", font=theme.font(10, "bold"), anchor="w")
+        ctk.CTkLabel(self, text=title, height=18, font=theme.font(-1), anchor="w",
+                     text_color=theme.color("muted")).pack(fill="x")
+        # 30px for the lead, 22px for its siblings.
+        font = theme.font(16, "bold") if lead else theme.font(8)
+        self._value = ctk.CTkLabel(self, text="–", height=38, anchor="w", font=font)
         self._value.pack(fill="x")
-        self._caption = ctk.CTkLabel(body, text="", font=theme.font(-2),
-                                     text_color=theme.color("muted"), anchor="w")
+        self._caption = ctk.CTkLabel(self, text="", height=16, font=theme.font(-2), anchor="w",
+                                     text_color=theme.color("muted"))
         self._caption.pack(fill="x")
 
-    def set(self, value: str, caption: str = "", accent: str | None = None) -> None:
-        """Update the displayed value, caption and (optionally) accent colour."""
-        self._value.configure(text=value)
+    def set(self, value: str, caption: str = "", color: str = "text") -> None:
+        """Update the displayed figure.
+
+        Args:
+            value: Formatted figure.
+            caption: Small line under it.
+            color: Palette name for the figure (``danger`` for a signal, ``muted`` for a zero).
+        """
+        self._value.configure(text=value, text_color=self._theme.color(color))
         self._caption.configure(text=caption)
-        if accent:
-            self._strip.configure(fg_color=self._theme.color(accent))

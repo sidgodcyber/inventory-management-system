@@ -69,18 +69,19 @@ class DataTable(ctk.CTkFrame):
 
     def _build_tree(self, columns: Sequence[Column], height: int) -> None:
         """Create the Treeview and its scrollbar."""
-        holder = ctk.CTkFrame(self, fg_color="transparent")
+        holder = ctk.CTkFrame(self, **self._theme.card_style())
         holder.pack(fill="both", expand=True)
         self.tree = ttk.Treeview(holder, columns=[c.key for c in columns], show="headings",
                                  selectmode="browse", height=height, style=TABLE_STYLE)
         for column in columns:
             self.tree.heading(column.key, text=column.heading,
+                              anchor=column.anchor,
                               command=lambda key=column.key: self._header_clicked(key))
             self.tree.column(column.key, width=column.width, minwidth=40, anchor=column.anchor)
         scrollbar = ctk.CTkScrollbar(holder, command=self.tree.yview)
         self.tree.configure(yscrollcommand=scrollbar.set)
-        self.tree.pack(side="left", fill="both", expand=True)
-        scrollbar.pack(side="right", fill="y")
+        self.tree.pack(side="left", fill="both", expand=True, padx=(8, 0), pady=4)
+        scrollbar.pack(side="right", fill="y", padx=2, pady=4)
         self.tree.bind("<Double-1>", self._activated)
         self.tree.bind("<Return>", self._activated)
 
@@ -136,9 +137,9 @@ class DataTable(ctk.CTkFrame):
         tags(TAG_LOW, background=theme.mode_color("danger_row"))
         tags(TAG_STOCKOUT, background=theme.mode_color("stockout_row"))
         tags(TAG_INACTIVE, foreground=theme.mode_color("inactive_fg"))
-        tags(TAG_ERROR, foreground=theme.color("danger"))
-        tags(TAG_WARNING, foreground=theme.color("warning"))
-        tags(TAG_SUCCESS, foreground=theme.color("success"))
+        tags(TAG_ERROR, foreground=theme.mode_color("danger"))
+        tags(TAG_WARNING, foreground=theme.mode_color("warning"))
+        tags(TAG_SUCCESS, foreground=theme.mode_color("success"))
 
     def mark_sorted(self, key: str, descending: bool) -> None:
         """Show the sort arrow on a column header.

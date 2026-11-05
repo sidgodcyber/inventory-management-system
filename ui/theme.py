@@ -31,6 +31,8 @@ class Theme:
         self.config = config
         self.palette: dict[str, str] = config.get("ui.palette")
         self.family: str = config.get("ui.font_family")
+        self.strong_family: str = config.get("ui.strong_font_family")
+        self.control_height: int = config.get("ui.control_height")
         self.size: int = config.get("ui.font_size")
         self.heading_size: int = config.get("ui.heading_size")
         self._fonts: dict[tuple[int, str], ctk.CTkFont] = {}
@@ -38,10 +40,19 @@ class Theme:
 
     # -- fonts ----------------------------------------------------------------------
     def font(self, delta: int = 0, weight: str = "normal") -> ctk.CTkFont:
-        """Cached CTkFont ``delta`` points larger than the base size."""
+        """Cached CTkFont ``delta`` points larger than the base size.
+
+        Args:
+            delta: Size difference from the base font size.
+            weight: ``normal`` or ``bold`` (the semibold face, for titles and lead figures).
+
+        Returns:
+            The font.
+        """
         key = (self.size + delta, weight)
         if key not in self._fonts:
-            self._fonts[key] = ctk.CTkFont(family=self.family, size=key[0], weight=weight)
+            family = self.strong_family if weight == "bold" else self.family
+            self._fonts[key] = ctk.CTkFont(family=family, size=key[0])
         return self._fonts[key]
 
     def mono_font(self, delta: int = -1) -> ctk.CTkFont:
@@ -69,29 +80,43 @@ class Theme:
         """True when CustomTkinter currently renders in dark mode."""
         return ctk.get_appearance_mode().lower() == "dark"
 
-    def color(self, name: str) -> str:
-        """A palette colour that has no light/dark variant (e.g. ``danger``)."""
-        return self.palette[name]
+    def color(self, name: str) -> tuple[str, str]:
+        """A palette colour in the ``(light, dark)`` form CustomTkinter widgets accept."""
+        return self.pair(name)
 
     def mode_color(self, base: str) -> str:
-        """The ``<base>_light`` or ``<base>_dark`` colour for the current mode."""
+        """The ``<base>_light`` or ``<base>_dark`` colour for the current mode.
+
+        For Tk and Matplotlib, which cannot follow the appearance mode by themselves.
+        """
         return self.palette[f"{base}_{'dark' if self.is_dark() else 'light'}"]
 
     def button_style(self, kind: str = "primary") -> dict[str, object]:
         """Keyword options for a CTkButton of the given kind.
 
         Args:
-            kind: ``primary`` (theme default), ``secondary`` (outlined) or ``danger``.
+            kind: ``primary`` (near-black, one per screen), ``secondary`` (a grey fill)
+                or ``danger`` (outlined in the negative colour).
 
         Returns:
             Options to pass as ``**style`` to ``ctk.CTkButton``.
         """
         if kind == "secondary":
-            return {"fg_color": "transparent", "border_width": 1,
-                    "text_color": ("gray10", "gray90")}
+            return {"fg_color": self.pair("raised"), "hover_color": self.pair("control"),
+                    "text_color": self.pair("text")}
         if kind == "danger":
-            return {"fg_color": self.color("danger")}
+            return {"fg_color": "transparent", "border_width": 1, "hover_color": self.pair("raised"),
+                    "border_color": self.pair("danger"), "text_color": self.pair("danger")}
         return {}
+
+    def card_style(self) -> dict[str, object]:
+        """Options for a card: a white sheet with a 1px edge, flat, no shadow.
+
+        Returns:
+            Options to pass as ``**style`` to ``ctk.CTkFrame``.
+        """
+        return {"fg_color": self.pair("surface"), "border_width": 1,
+                "border_color": self.pair("border"), "corner_radius": 8}
 
     def pair(self, base: str) -> tuple[str, str]:
         """``(light, dark)`` colours, the form CustomTkinter widgets accept."""
@@ -122,14 +147,18 @@ class Theme:
         """Apply the palette to every ``ttk.Treeview`` using :data:`TABLE_STYLE`."""
         style = ttk.Style()
         style.theme_use("clam")
-        background = self.mode_color("table_bg")
-        foreground = self.mode_color("table_fg")
+        background = self.mode_color("surface")
+        foreground = self.mode_color("text")
+        style.layout(TABLE_STYLE, [("Treeview.treearea", {"sticky": "nswe"})])  # no outer frame
         style.configure(TABLE_STYLE, background=background, fieldbackground=background,
                         foreground=foreground, rowheight=self.config.get("ui.table_row_height"),
-                        font=self.tk_font(), borderwidth=0)
-        style.configure(f"{TABLE_STYLE}.Heading", background=self.mode_color("heading_bg"),
-                        foreground=foreground, font=self.tk_font(0, "bold"), relief="flat")
-        style.map(TABLE_STYLE, background=[("selected", self.color("selection_bg"))],
-                  foreground=[("selected", self.color("selection_fg"))])
-        style.map(f"{TABLE_STYLE}.Heading",
-                  background=[("active", self.mode_color("heading_bg"))])
+                        font=self.tk_font(-1), borderwidth=0)
+        # No header band: 12px grey sentence-case labels on the table's own surface.
+        style.configure(f"{TABLE_STYLE}.Heading", background=background, relief="flat",
+                        foreground=self.mode_color("muted"), font=self.tk_font(-2), padding=(6, 6),
+                        borderwidth=0, bordercolor=background, lightcolor=background,
+                        darkcolor=background)
+        style.map(TABLE_STYLE, background=[("selected", self.mode_color("selection_bg"))],
+                  foreground=[("selected", foreground)])
+        style.map(f"{TABLE_STYLE}.Heading", background=[("active", background)],
+                  foreground=[("active", foreground)])

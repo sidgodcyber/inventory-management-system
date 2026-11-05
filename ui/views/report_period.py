@@ -25,20 +25,22 @@ class PeriodBar(ctk.CTkFrame):
         master: Parent widget.
         periods: Quick period lengths in days (from config).
         on_run: Called whenever the report should be (re)run.
+        control_height: Height shared by the bar's controls.
     """
 
-    def __init__(self, master: Any, periods: Sequence[int], on_run: Callable[[], None]) -> None:
+    def __init__(self, master: Any, periods: Sequence[int], on_run: Callable[[], None],
+                 control_height: int) -> None:
         super().__init__(master, fg_color="transparent")
         self._on_run = on_run
         self._date_format = "%Y-%m-%d"
-        self.period = ctk.CTkSegmentedButton(self, values=[*(f"{d} days" for d in periods), CUSTOM],
+        self.period = ctk.CTkSegmentedButton(self, height=control_height, values=[*(f"{d} days" for d in periods), CUSTOM],
                                              command=self._chosen)
         self.period.pack(side="left")
-        self.date_from = ctk.CTkEntry(self, width=130)
+        self.date_from = ctk.CTkEntry(self, height=control_height, width=130)
         self.date_from.pack(side="left", padx=(12, 0))
-        self.date_to = ctk.CTkEntry(self, width=130)
+        self.date_to = ctk.CTkEntry(self, height=control_height, width=130)
         self.date_to.pack(side="left", padx=(6, 0))
-        ctk.CTkButton(self, text="Run report", width=110, command=on_run).pack(side="left",
+        ctk.CTkButton(self, height=control_height, text="Run report", width=110, command=on_run).pack(side="left",
                                                                                padx=(8, 0))
 
     def preset(self, start: date, end: date, date_format: str) -> None:

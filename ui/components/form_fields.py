@@ -60,7 +60,7 @@ def make_input(master: Any, field: FormField, value: str, theme: Theme) -> Any:
     """
     if field.kind == COMBO:
         options = list(field.options) or [""]
-        widget = ctk.CTkOptionMenu(master, values=options, width=_INPUT_WIDTH,
+        widget = ctk.CTkOptionMenu(master, height=theme.control_height, values=options, width=_INPUT_WIDTH,
                                    dynamic_resizing=False, font=theme.font())
         widget.set(value if value in options else options[0])
         return widget
@@ -68,7 +68,7 @@ def make_input(master: Any, field: FormField, value: str, theme: Theme) -> Any:
         widget = ctk.CTkTextbox(master, width=_INPUT_WIDTH, height=80, font=theme.font())
         widget.insert("1.0", value)
         return widget
-    widget = ctk.CTkEntry(master, width=_INPUT_WIDTH, placeholder_text=field.placeholder,
+    widget = ctk.CTkEntry(master, height=theme.control_height, width=_INPUT_WIDTH, placeholder_text=field.placeholder,
                           font=theme.font(), show="•" if field.secret else "")
     if value:
         widget.insert(0, value)

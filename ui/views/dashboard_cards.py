@@ -1,4 +1,4 @@
-"""Row of five KPI cards for the dashboard.
+"""Headline figures for the dashboard, in one container split by dividers.
 
 Layer: ui/views
 Author: Siddhi Baluja
@@ -16,18 +16,18 @@ from ui.components.stat_card import StatCard
 from ui.theme import Theme
 from utils.formatters import format_ratio
 
-# (key, title, accent palette colour) in display order.
-_CARDS: tuple[tuple[str, str, str], ...] = (
-    ("products", "Active products", "accent"),
-    ("value", "Stock value (at cost)", "accent"),
-    ("low", "Low stock", "warning"),
-    ("stockouts", "Stockouts", "danger"),
-    ("turnover", "Inventory turnover", "success"),
+# (key, label, is the screen's answer figure) in display order.
+_CELLS: tuple[tuple[str, str, bool], ...] = (
+    ("reorder", "Needs reordering", True),
+    ("stockouts", "Out of stock", False),
+    ("value", "Stock value at cost", False),
+    ("turnover", "Inventory turnover", False),
+    ("products", "Products stocked", False),
 )
 
 
 class KpiCards(ctk.CTkFrame):
-    """Equal-width stat cards for the headline numbers.
+    """A card split into equal columns, the screen's answer first.
 
     Args:
         master: Parent widget.
@@ -35,27 +35,31 @@ class KpiCards(ctk.CTkFrame):
     """
 
     def __init__(self, master: Any, theme: Theme) -> None:
-        super().__init__(master, fg_color="transparent")
-        self.grid_columnconfigure(tuple(range(len(_CARDS))), weight=1, uniform="cards")
+        super().__init__(master, **theme.card_style())
         self.cards: dict[str, StatCard] = {}
-        for column, (key, title, accent) in enumerate(_CARDS):
-            card = StatCard(self, theme, title, accent)
-            card.grid(row=0, column=column, sticky="ew", padx=(0 if column == 0 else 6, 0))
-            self.cards[key] = card
+        for index, (key, label, lead) in enumerate(_CELLS):
+            if index:
+                ctk.CTkFrame(self, width=1, height=10, corner_radius=0,
+                             fg_color=theme.pair("border")).grid(row=0, column=index * 2 - 1,
+                                                                 sticky="ns", pady=14)
+            self.grid_columnconfigure(index * 2, weight=1, uniform="kpi")
+            cell = StatCard(self, theme, label, lead)
+            cell.grid(row=0, column=index * 2, sticky="ew", padx=20, pady=12)
+            self.cards[key] = cell
 
     def show(self, stats: DashboardStats, money: Callable[[float], str]) -> None:
-        """Fill the cards; low-stock and stockout accents turn green at zero.
+        """Fill the cells; red is kept for real stockouts, and a zero is grey.
 
         Args:
             stats: Figures from the report service.
             money: Formats the stock value with the configured currency.
         """
         cards = self.cards
-        cards["products"].set(str(stats.total_products), "SKUs currently stocked")
+        cards["reorder"].set(str(stats.low_stock_count), "at or below reorder level",
+                             "text" if stats.low_stock_count else "muted")
+        cards["stockouts"].set(str(stats.stockout_count), "products at zero",
+                               "danger" if stats.stockout_count else "muted")
         cards["value"].set(money(stats.total_stock_value), "quantity × unit cost")
-        cards["low"].set(str(stats.low_stock_count), "at or below reorder level",
-                         "warning" if stats.low_stock_count else "success")
-        cards["stockouts"].set(str(stats.stockout_count), "products with zero stock",
-                               "danger" if stats.stockout_count else "success")
         cards["turnover"].set(format_ratio(stats.turnover),
-                              f"COGS ÷ avg inventory · {stats.period_days} days")
+                              f"COGS ÷ avg inventory, {stats.period_days} days")
+        cards["products"].set(str(stats.total_products), "active SKUs")

@@ -32,17 +32,17 @@ class ProductsView(CrudView):
     """CRUD screen for products with stock-health cues."""
 
     title = "Products"
-    subtitle = ("Red rows are at or below their reorder level; dark red rows are out of stock. "
+    subtitle = ("Pale red rows are at or below their reorder level; stronger red is out of stock. "
                 "Quantities change only through the Stock screen.")
     entity = "Product"
     search_hint = "Search SKU, name, category or supplier…"
     columns = (
-        Column("sku", "SKU", 100), Column("name", "Name", 190),
-        Column("category_name", "Category", 115), Column("supplier_name", "Supplier", 140),
-        Column("unit", "Unit", 50, "center"), Column("unit_cost", "Cost", 80, "e"),
-        Column("selling_price", "Price", 80, "e"), Column("quantity_on_hand", "On hand", 70, "e"),
-        Column("reorder_level", "Reorder", 65, "e"), Column("stock_value", "Value", 95, "e"),
-        Column("status", "Status", 80, "center", sortable=False),
+        Column("sku", "SKU", 96), Column("name", "Name", 190),
+        Column("category_name", "Category", 106), Column("supplier_name", "Supplier", 134),
+        Column("unit", "Unit", 42), Column("unit_cost", "Cost", 66, "e"),
+        Column("selling_price", "Price", 66, "e"), Column("quantity_on_hand", "On hand", 60, "e"),
+        Column("reorder_level", "Reorder", 60, "e"), Column("stock_value", "Value", 78, "e"),
+        Column("status", "Status", 74, sortable=False),
     )
 
     def build(self) -> None:

@@ -33,7 +33,7 @@ class Toolbar(ctk.CTkFrame):
         self._on_search = on_search
         self._debounce_ms = debounce_ms
         self._job: str | None = None
-        self.search = ctk.CTkEntry(self, width=300, placeholder_text=placeholder,
+        self.search = ctk.CTkEntry(self, height=self._theme.control_height, width=300, placeholder_text=placeholder,
                                    font=theme.font())
         if on_search is not None:
             self.search.pack(side="left")
@@ -52,7 +52,7 @@ class Toolbar(ctk.CTkFrame):
         Returns:
             The created button.
         """
-        button = ctk.CTkButton(self, text=text, width=width, command=command,
+        button = ctk.CTkButton(self, height=self._theme.control_height, text=text, width=width, command=command,
                                font=self._theme.font(), **self._theme.button_style(kind))
         button.pack(side="right", padx=(8, 0))
         return button

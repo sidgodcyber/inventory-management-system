@@ -40,9 +40,9 @@ class ConfirmDialog(ctk.CTkToplevel):
                      font=theme.font()).pack(anchor="w", pady=(10, 18))
         buttons = ctk.CTkFrame(frame, fg_color="transparent")
         buttons.pack(fill="x")
-        ctk.CTkButton(buttons, text="Cancel", width=100, command=self.destroy,
+        ctk.CTkButton(buttons, height=theme.control_height, text="Cancel", width=100, command=self.destroy,
                       **theme.button_style("secondary")).pack(side="right")
-        ctk.CTkButton(buttons, text=confirm_text, width=120, command=self._confirm,
+        ctk.CTkButton(buttons, height=theme.control_height, text=confirm_text, width=120, command=self._confirm,
                       **theme.button_style("danger" if danger else "primary")).pack(
             side="right", padx=(0, 8))
         center_on_parent(self, master)

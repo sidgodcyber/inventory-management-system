@@ -152,6 +152,19 @@ class ReportService:
         totals = self._transactions.daily_totals(*period_bounds(start, end))
         return turnover.daily_movement_table(totals, date_range(start, end), [TX_IN, TX_OUT])
 
+    def days_of_stock(self, today: date | None = None) -> dict[int, float | None]:
+        """Days until each product runs out at its recent rate of use.
+
+        Args:
+            today: Override for "today" (tests).
+
+        Returns:
+            ``{product id: days}`` over the configured period; ``None`` when
+            nothing was issued in it.
+        """
+        rows = self.turnover_report(*self.default_period(today))
+        return {row.product_id: row.days_of_stock for row in rows}
+
     def low_stock(self) -> list[Product]:
         """Products that need reordering.
 

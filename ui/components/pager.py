@@ -30,11 +30,13 @@ class Pager(ctk.CTkFrame):
         self._page = 1
         self._info = ctk.CTkLabel(self, text="", font=theme.font(-1))
         self._info.pack(side="left", padx=4)
-        self._next = ctk.CTkButton(self, text="Next ›", width=80,
-                                   command=lambda: self._on_page(self._page + 1))
+        self._next = ctk.CTkButton(self, height=theme.control_height, text="Next ›", width=80,
+                                   command=lambda: self._on_page(self._page + 1),
+                                   **theme.button_style("secondary"))
         self._next.pack(side="right", padx=(6, 0))
-        self._prev = ctk.CTkButton(self, text="‹ Prev", width=80,
-                                   command=lambda: self._on_page(self._page - 1))
+        self._prev = ctk.CTkButton(self, height=theme.control_height, text="‹ Prev", width=80,
+                                   command=lambda: self._on_page(self._page - 1),
+                                   **theme.button_style("secondary"))
         self._prev.pack(side="right")
 
     def update_page(self, page: Page[Any]) -> None:

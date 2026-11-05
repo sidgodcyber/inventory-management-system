@@ -39,7 +39,7 @@ class AboutView(BaseView):
 
     def build(self) -> None:
         """Two tabs: overview and module inventory."""
-        tabs = ctk.CTkTabview(self.body)
+        tabs = ctk.CTkTabview(self.body, border_width=1, border_color=self.theme.pair("border"))
         tabs.pack(fill="both", expand=True)
         self._build_overview(tabs.add("Overview"))
         self._build_modules(tabs.add("Modules"))
@@ -55,13 +55,13 @@ class AboutView(BaseView):
         right = ctk.CTkFrame(tab, fg_color="transparent")
         right.grid(row=0, column=1, sticky="nsew", padx=(8, 0))
         self._section(right, "Layer diagram")
-        diagram = ctk.CTkTextbox(right, height=250, font=self.theme.mono_font(), wrap="none")
+        diagram = ctk.CTkTextbox(right, height=250, font=self.theme.mono_font(-3), wrap="none")
         diagram.pack(fill="x")
         diagram.insert("1.0", self.services.system.layer_diagram())
         diagram.configure(state="disabled")
         self._section(right, "Layer rules")
         rules = "\n".join(f"•  {rule}" for rule in self.services.system.layer_rules())
-        ctk.CTkLabel(right, text=rules, justify="left", anchor="w", wraplength=480,
+        ctk.CTkLabel(right, text=rules, justify="left", anchor="w", wraplength=440,
                      font=self.theme.font(-1)).pack(fill="x")
 
     def _fact_rows(self, parent: Any, heading: str, rows: Any) -> None:
@@ -70,9 +70,9 @@ class AboutView(BaseView):
         for label, value in rows:
             line = ctk.CTkFrame(parent, fg_color="transparent")
             line.pack(fill="x", pady=1)
-            ctk.CTkLabel(line, text=label, width=170, anchor="nw", font=self.theme.font(-1, "bold"),
+            ctk.CTkLabel(line, text=label, width=150, anchor="nw", font=self.theme.font(-1, "bold"),
                          ).pack(side="left", anchor="n")
-            ctk.CTkLabel(line, text=str(value), anchor="w", justify="left", wraplength=340,
+            ctk.CTkLabel(line, text=str(value), anchor="w", justify="left", wraplength=270,
                          font=self.theme.font(-1)).pack(side="left", fill="x", expand=True)
 
     def _section(self, parent: Any, text: str) -> None:

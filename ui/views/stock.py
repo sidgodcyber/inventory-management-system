@@ -39,11 +39,11 @@ class StockView(ListView):
     table_height = 9
     columns = (
         Column("created_at", "Date / time", 130), Column("product_sku", "SKU", 100),
-        Column("product_name", "Product", 200), Column("type", "Type", 70, "center"),
+        Column("product_name", "Product", 190), Column("type", "Type", 56),
         Column("quantity", "Qty", 60, "e"), Column("unit_cost", "Unit cost", 85, "e"),
         Column("value", "Value", 95, "e", sortable=False),
-        Column("reference_note", "Reference / note", 200, sortable=False),
-        Column("performed_by", "By", 100),
+        Column("reference_note", "Reference / note", 170, sortable=False),
+        Column("performed_by", "By", 70),
     )
 
     def build(self) -> None:

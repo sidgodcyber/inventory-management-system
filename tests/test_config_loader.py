@@ -43,8 +43,8 @@ def test_get_returns_copy_so_config_is_read_only() -> None:
     """Mutating a returned section must not change the stored configuration."""
     config = load_config()
     palette = config.get("ui.palette")
-    palette["danger"] = "#000000"
-    assert config.get("ui.palette")["danger"] != "#000000"
+    palette["danger_light"] = "#000000"
+    assert config.get("ui.palette")["danger_light"] != "#000000"
 
 
 def test_resolve_path_is_relative_to_project_root() -> None:

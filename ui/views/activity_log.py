@@ -43,8 +43,8 @@ class ActivityLogView(ListView):
     columns = (
         Column("timestamp", "Timestamp", 140), Column("user", "User", 100),
         Column("action", "Action", 120), Column("entity", "Entity", 110),
-        Column("entity_id", "ID", 110), Column("level", "Level", 70, "center"),
-        Column("details", "Summary", 385, sortable=False),
+        Column("entity_id", "ID", 90), Column("level", "Level", 76),
+        Column("details", "Summary", 350, sortable=False),
     )
 
     def build(self) -> None:

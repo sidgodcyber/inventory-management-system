@@ -15,6 +15,7 @@ from core.exceptions import AppError
 from models.user import User
 from services.container import AppServices
 from ui.components.messages import show_error
+from ui.components.sidebar import product_mark
 from ui.theme import Theme
 
 
@@ -34,16 +35,17 @@ class LoginView(ctk.CTkFrame):
         super().__init__(master, fg_color="transparent")
         self._services = services
         self._on_success = on_success
-        card = ctk.CTkFrame(self, corner_radius=12)
+        card = ctk.CTkFrame(self, **theme.card_style())
         card.place(relx=0.5, rely=0.45, anchor="center")
         cfg = services.config
-        ctk.CTkLabel(card, text=cfg.get("app.name"), font=theme.font(8, "bold")).pack(
-            padx=40, pady=(32, 2))
+        product_mark(card, theme).pack(pady=(32, 12))
+        ctk.CTkLabel(card, text=cfg.get("app.name"), font=theme.font(4, "bold")).pack(
+            padx=40, pady=(0, 2))
         ctk.CTkLabel(card, text="Sign in to continue", font=theme.font(-1),
                      text_color=theme.color("muted")).pack(pady=(0, 18))
-        self.username = ctk.CTkEntry(card, width=280, placeholder_text="Username",
+        self.username = ctk.CTkEntry(card, height=theme.control_height, width=280, placeholder_text="Username",
                                      font=theme.font())
-        self.password = ctk.CTkEntry(card, width=280, placeholder_text="Password", show="•",
+        self.password = ctk.CTkEntry(card, height=theme.control_height, width=280, placeholder_text="Password", show="•",
                                      font=theme.font())
         for entry in (self.username, self.password):
             entry.pack(padx=40, pady=5)
@@ -51,7 +53,7 @@ class LoginView(ctk.CTkFrame):
         self.error = ctk.CTkLabel(card, text=message, wraplength=280, font=theme.font(-1),
                                   text_color=theme.color("danger"))
         self.error.pack(padx=40, pady=(6, 0))
-        ctk.CTkButton(card, text="Sign in", width=280, command=self.submit).pack(
+        ctk.CTkButton(card, height=theme.control_height, text="Sign in", width=280, command=self.submit).pack(
             padx=40, pady=(10, 32))
         self.after(150, self._focus_username)
 

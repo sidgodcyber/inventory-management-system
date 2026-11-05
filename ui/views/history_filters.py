@@ -37,19 +37,19 @@ class HistoryFilterBar(ctk.CTkFrame):
         super().__init__(master, fg_color="transparent")
         self._on_clear = on_clear
         ctk.CTkLabel(self, text="History", font=theme.font(2, "bold")).pack(side="left")
-        self.product = ctk.CTkOptionMenu(self, values=[ALL_PRODUCTS], width=200,
+        self.product = ctk.CTkOptionMenu(self, height=theme.control_height, values=[ALL_PRODUCTS], width=200,
                                          dynamic_resizing=False)
         self.product.pack(side="left", padx=(14, 0))
-        self.kind = ctk.CTkOptionMenu(self, values=[ALL_TYPES, *TRANSACTION_TYPES], width=110)
+        self.kind = ctk.CTkOptionMenu(self, height=theme.control_height, values=[ALL_TYPES, *TRANSACTION_TYPES], width=110)
         self.kind.pack(side="left", padx=(8, 0))
-        self.date_from = ctk.CTkEntry(self, width=140)
+        self.date_from = ctk.CTkEntry(self, height=theme.control_height, width=140)
         self.date_from.pack(side="left", padx=(8, 0))
-        self.date_to = ctk.CTkEntry(self, width=140)
+        self.date_to = ctk.CTkEntry(self, height=theme.control_height, width=140)
         self.date_to.pack(side="left", padx=(6, 0))
         buttons = [("Export CSV", on_export, "secondary"), ("Clear", self.clear, "secondary"),
-                   ("Apply", on_apply, "primary")]
+                   ("Apply", on_apply, "secondary")]
         for text, command, kind in (b for b in buttons if b[1] is not None):
-            ctk.CTkButton(self, text=text, width=90, command=command,
+            ctk.CTkButton(self, height=theme.control_height, text=text, width=90, command=command,
                           **theme.button_style(kind)).pack(side="right", padx=(6, 0))
 
     def set_products(self, labels: list[str]) -> None:

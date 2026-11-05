@@ -36,13 +36,13 @@ class ChartPanel(ctk.CTkFrame):
     """
 
     def __init__(self, master: Any, theme: Theme, title: str, dpi: int) -> None:
-        super().__init__(master, corner_radius=10)
+        super().__init__(master, **theme.card_style())
         self._theme = theme
         self._draw_callback: DrawFunction | None = None  # not "_draw": CTk uses that name
         self._grid_axis = "y"
         ctk.CTkLabel(self, text=title, font=theme.font(1, "bold"), anchor="w").pack(
             fill="x", padx=14, pady=(10, 0))
-        self.figure = Figure(figsize=(5, 3), dpi=dpi)
+        self.figure = Figure(figsize=(5, 3), dpi=dpi, layout="constrained")
         self.canvas = FigureCanvasTkAgg(self.figure, master=self)
         self.canvas.get_tk_widget().pack(fill="both", expand=True, padx=10, pady=10)
         theme.on_change(self.redraw)
@@ -66,21 +66,21 @@ class ChartPanel(ctk.CTkFrame):
         ax = self.figure.add_subplot(111)
         self._draw_callback(ax, self._theme)
         self._style(ax)
-        self.figure.tight_layout()
         self.canvas.draw_idle()
 
     def _style(self, ax: Axes) -> None:
         """Apply background, text and grid colours for the current mode."""
-        background = self._theme.mode_color("chart_bg")
-        foreground = self._theme.mode_color("chart_fg")
-        self.figure.set_facecolor(self._theme.mode_color("card_bg"))  # blends into the card
+        background = self._theme.mode_color("surface")
+        foreground = self._theme.mode_color("muted")
+        self.figure.set_facecolor(background)  # blends into the card
         ax.set_facecolor(background)
-        ax.tick_params(colors=foreground, labelsize=8)
+        ax.tick_params(colors=foreground, labelsize=8, length=0)
         ax.xaxis.label.set_color(foreground)
         ax.yaxis.label.set_color(foreground)
         ax.title.set_color(foreground)
-        for spine in ax.spines.values():
-            spine.set_color(self._theme.mode_color("grid"))
+        for side in ("top", "right", "left"):
+            ax.spines[side].set_visible(False)
+        ax.spines["bottom"].set_color(self._theme.mode_color("control"))
         ax.grid(axis=self._grid_axis, color=self._theme.mode_color("grid"), linewidth=0.6)
         ax.set_axisbelow(True)
         legend = ax.get_legend()

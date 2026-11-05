@@ -17,12 +17,12 @@ from ui.theme import Theme
 from utils.formatters import format_days, format_number, format_ratio
 
 COLUMNS = (
-    Column("sku", "SKU", 100), Column("name", "Product", 190),
-    Column("category_name", "Category", 115), Column("quantity_on_hand", "On hand", 70, "e"),
-    Column("units_sold", "Issued", 70, "e"), Column("cogs", "COGS", 100, "e"),
-    Column("average_inventory_value", "Avg inventory", 110, "e"),
-    Column("turnover", "Turnover", 80, "e"), Column("avg_daily_usage", "Usage/day", 80, "e"),
-    Column("days_of_stock", "Days of stock", 100, "e"),
+    Column("sku", "SKU", 96), Column("name", "Product", 180),
+    Column("category_name", "Category", 106), Column("quantity_on_hand", "On hand", 60, "e"),
+    Column("units_sold", "Issued", 56, "e"), Column("cogs", "COGS", 84, "e"),
+    Column("average_inventory_value", "Avg inventory", 90, "e"),
+    Column("turnover", "Turnover", 64, "e"), Column("avg_daily_usage", "Usage/day", 66, "e"),
+    Column("days_of_stock", "Days of stock", 86, "e"),
 )
 
 
@@ -45,7 +45,7 @@ class TurnoverPanel(ctk.CTkFrame):
         self._rows: list[TurnoverRow] = []
         self._sort = ("turnover", True)
         if on_export is not None:
-            ctk.CTkButton(self, text="Export turnover CSV", width=160, command=on_export,
+            ctk.CTkButton(self, height=theme.control_height, text="Export turnover CSV", width=160, command=on_export,
                           **theme.button_style("secondary")).pack(anchor="e", pady=(0, 6))
         self.table = DataTable(self, theme, COLUMNS, on_sort=self._sorted, height=10)
         self.table.pack(fill="both", expand=True)

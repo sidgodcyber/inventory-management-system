@@ -33,7 +33,7 @@ class SettingsView(BaseView):
         """Action bar and one row per setting."""
         self._inputs: dict[str, Any] = {}
         self._build_actions()
-        self.form = ctk.CTkScrollableFrame(self.body, corner_radius=10)
+        self.form = ctk.CTkScrollableFrame(self.body, **self.theme.card_style())
         self.form.pack(fill="both", expand=True)
         self.form.grid_columnconfigure(0, weight=1)
         for row, definition in enumerate(self.services.settings.definitions()):
@@ -49,7 +49,7 @@ class SettingsView(BaseView):
         for text, command, kind, width in (("Reset to defaults", self._reset, "danger", 140),
                                            ("Revert", self.refresh, "secondary", 90),
                                            ("Save changes", self._save, "primary", 130)):
-            ctk.CTkButton(bar, text=text, width=width, command=command,
+            ctk.CTkButton(bar, height=self.theme.control_height, text=text, width=width, command=command,
                           **self.theme.button_style(kind)).pack(side="right", padx=(8, 0))
 
     def _add_row(self, row: int, definition: SettingDefinition) -> None:
@@ -84,11 +84,11 @@ class SettingsView(BaseView):
         settings = self.services.settings
         options = settings.options(key)
         if options and settings.is_free_choice(key):
-            return ctk.CTkComboBox(self.form, values=options, width=240, font=self.theme.font())
+            return ctk.CTkComboBox(self.form, height=self.theme.control_height, values=options, width=240, font=self.theme.font())
         if options:
-            return ctk.CTkOptionMenu(self.form, values=options, width=240,
+            return ctk.CTkOptionMenu(self.form, height=self.theme.control_height, values=options, width=240,
                                      font=self.theme.font())
-        return ctk.CTkEntry(self.form, width=240, font=self.theme.font())
+        return ctk.CTkEntry(self.form, height=self.theme.control_height, width=240, font=self.theme.font())
 
     # -- data -------------------------------------------------------------------------
     def refresh(self) -> None:

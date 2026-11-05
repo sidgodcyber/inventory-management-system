@@ -27,6 +27,7 @@ from ui.theme import Theme
 from ui.views.base_view import BaseView
 from ui.views.change_password import ask_new_password
 from ui.views.login import LoginView
+from ui.widget_theme import install_widget_theme
 
 _MUST_CHANGE = "You must set a new password before using the system."
 
@@ -44,7 +45,7 @@ class App(ctk.CTk):
         self.theme = Theme(services.config)
         # Appearance and colour theme must be set before any widget is created.
         ctk.set_appearance_mode(services.settings.get("appearance_mode"))
-        ctk.set_default_color_theme(services.config.get("ui.color_theme"))
+        install_widget_theme(services.config.get("ui.color_theme"), self.theme.pair)
         super().__init__()
         self._views: dict[str, BaseView] = {}
         self._current: str | None = None

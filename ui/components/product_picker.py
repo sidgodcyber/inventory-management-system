@@ -47,7 +47,7 @@ class ProductPicker(ctk.CTkFrame):
         super().__init__(master, fg_color="transparent")
         self._money = money
         self._products: dict[str, Product] = {}
-        self.box = ctk.CTkComboBox(self, values=[""], width=380, font=theme.font(),
+        self.box = ctk.CTkComboBox(self, height=theme.control_height, values=[""], width=380, font=theme.font(),
                                    command=lambda _v: self.show_info())
         self.box.pack(side="left")
         self.box.bind("<KeyRelease>", lambda _e: self.show_info())

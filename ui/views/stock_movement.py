@@ -38,12 +38,12 @@ class MovementPanel(ctk.CTkFrame):
 
     def __init__(self, master: Any, view: BaseView,
                  on_recorded: Callable[[MovementResult], None]) -> None:
-        super().__init__(master, corner_radius=10)
+        super().__init__(master, **view.theme.card_style())
         self._view = view
         self._on_recorded = on_recorded
         top = ctk.CTkFrame(self, fg_color="transparent")
         top.pack(fill="x", padx=14, pady=(12, 6))
-        self.movement = ctk.CTkSegmentedButton(top, values=list(MOVEMENTS),
+        self.movement = ctk.CTkSegmentedButton(top, height=self._view.theme.control_height, values=list(MOVEMENTS),
                                                command=lambda _v: self._movement_changed())
         self.movement.set("Stock In")
         self.movement.pack(side="right")
@@ -55,12 +55,12 @@ class MovementPanel(ctk.CTkFrame):
         """Quantity, unit cost, note and the submit button."""
         row = ctk.CTkFrame(self, fg_color="transparent")
         row.pack(fill="x", padx=14, pady=(0, 12))
-        self.quantity = ctk.CTkEntry(row, width=150, placeholder_text="Quantity")
-        self.unit_cost = ctk.CTkEntry(row, width=150, placeholder_text="Unit cost (optional)")
-        self.note = ctk.CTkEntry(row, width=330, placeholder_text="Reference / note")
+        self.quantity = ctk.CTkEntry(row, height=self._view.theme.control_height, width=150, placeholder_text="Quantity")
+        self.unit_cost = ctk.CTkEntry(row, height=self._view.theme.control_height, width=150, placeholder_text="Unit cost (optional)")
+        self.note = ctk.CTkEntry(row, height=self._view.theme.control_height, width=330, placeholder_text="Reference / note")
         for index, entry in enumerate((self.quantity, self.unit_cost, self.note)):
             entry.pack(side="left", padx=(0 if index == 0 else 8, 0))
-        ctk.CTkButton(row, text="Record movement", width=150, command=self.record).pack(
+        ctk.CTkButton(row, height=self._view.theme.control_height, text="Record movement", width=150, command=self.record).pack(
             side="right")
 
     def _movement_changed(self) -> None:

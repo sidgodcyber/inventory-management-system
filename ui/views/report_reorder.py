@@ -21,7 +21,7 @@ COLUMNS = (
     Column("supplier_name", "Supplier", 180, sortable=False),
     Column("quantity_on_hand", "On hand", 80, "e", sortable=False),
     Column("reorder_level", "Reorder level", 100, "e", sortable=False),
-    Column("status", "Status", 90, "center", sortable=False),
+    Column("status", "Status", 80, sortable=False),
 )
 
 
@@ -37,7 +37,7 @@ class ReorderPanel(ctk.CTkFrame):
     def __init__(self, master: Any, theme: Theme, on_export: Callable[[], None] | None) -> None:
         super().__init__(master, fg_color="transparent")
         if on_export is not None:
-            ctk.CTkButton(self, text="Export reorder list CSV", width=180, command=on_export,
+            ctk.CTkButton(self, height=theme.control_height, text="Export reorder list CSV", width=180, command=on_export,
                           **theme.button_style("secondary")).pack(anchor="e", pady=(0, 6))
         self.table = DataTable(self, theme, COLUMNS, height=10)
         self.table.pack(fill="both", expand=True)

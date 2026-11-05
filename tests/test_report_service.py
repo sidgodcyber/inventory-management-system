@@ -108,3 +108,9 @@ def test_report_exports(services: AppServices, scenario: dict[str, int], tmp_pat
     assert pd.read_csv(turnover, encoding="utf-8-sig").iloc[0]["Turnover"] == 0.5
     assert pd.read_csv(low, encoding="utf-8-sig").iloc[0]["Shortfall"] == 5
     assert len(audit("EXPORT")) == 2
+
+
+def test_days_of_stock_by_product(services: AppServices, scenario: dict[str, int]) -> None:
+    """Days are keyed by product; a product with no usage has no estimate."""
+    days = services.reports.days_of_stock(today=date(2026, 3, 31))
+    assert days[scenario["b"]] is None and days[scenario["a"]] > 0
